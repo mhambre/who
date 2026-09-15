@@ -1,0 +1,12 @@
+[package]
+name = "who"
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.74"
+authors = ["Matthew Hambrecht <hambrechtmatt@gmail.com>"]
+description = "Pseudo-implementation of Meta's OWL"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mhambre/who"
+readme = "README.md"
+
+[dependencies]
