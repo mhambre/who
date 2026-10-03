@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+    branches: [master]
   pull_request:
   workflow_dispatch:
 
@@ -13,28 +14,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  format:
-    name: Formatting
-    uses: ./.github/workflows/format.yml
+  quality:
+    name: Quality
+    uses: ./.github/workflows/quality.yml
 
   tests:
-    name: Tests
+    name: Tests (${{ matrix.os }})
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: Linux
+            runner: ubuntu-latest
+          - os: macOS
+            runner: macos-latest
+          - os: Windows
+            runner: windows-latest
     uses: ./.github/workflows/test.yml
-
-  linux:
-    name: Linux
-    uses: ./.github/workflows/build.yml
     with:
-      runner: ubuntu-latest
-
-  macos:
-    name: macOS
-    uses: ./.github/workflows/build.yml
-    with:
-      runner: macos-latest
-
-  windows:
-    name: Windows
-    uses: ./.github/workflows/build.yml
-    with:
-      runner: windows-latest
+      runner: ${{ matrix.runner }}

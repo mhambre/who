@@ -121,7 +121,10 @@ fn main() {{
         "{stderr}"
     );
     assert!(stderr.contains("UNIQUE_ACTIVE_REASON"), "{stderr}");
-    assert!(stderr.contains("app/src/main.rs:4:"), "{stderr}");
+    assert!(
+        stderr.replace('\\', "/").contains("app/src/main.rs:4:"),
+        "{stderr}"
+    );
     if cfg!(feature = "date") {
         assert!(stderr.contains("UNIQUE_DATE_REASON"), "{stderr}");
         assert!(
@@ -141,7 +144,8 @@ fn main() {{
         write(root, "app/src/main.rs", &guard_source);
     }
     succeeds(cargo(root, &["build", "-p", "review-app"]));
-    let default_debug = fs::read(root.join("target/debug/review-app")).unwrap();
+    let executable_name = format!("review-app{}", std::env::consts::EXE_SUFFIX);
+    let default_debug = fs::read(root.join("target/debug").join(&executable_name)).unwrap();
     for forbidden in ["UNIQUE_", "WHO_ASSUMPTION", "sha256:", "schema.proto"] {
         assert!(
             !default_debug
@@ -184,7 +188,9 @@ fn main() {{
             }
             assert!(!ir.contains("guards::"));
         }
-        let executable = root.join(format!("target/{profile}/review-app"));
+        let executable = root
+            .join(format!("target/{profile}"))
+            .join(&executable_name);
         let bytes = fs::read(&executable).unwrap();
         assert!(!bytes
             .windows(b"UNIQUE_".len())
@@ -298,13 +304,18 @@ fn main() {{
             .status
             .success());
     }
+    let git_url = format!(
+        "file://{}{}",
+        if cfg!(windows) { "/" } else { "" },
+        root.join("git-dep")
+            .display()
+            .to_string()
+            .replace('\\', "/")
+    );
     write(
         root,
         "app/Cargo.toml",
-        &format!(
-            "{app_manifest}git_alias={{package='demo',git='file://{}'}}\n",
-            root.join("git-dep").display()
-        ),
+        &format!("{app_manifest}git_alias={{package='demo',git='{git_url}'}}\n"),
     );
     write(
         root,
@@ -322,7 +333,7 @@ fn main() {{
         cargo(root, &["check", "-p", "review-app"]),
         "multiple packages",
     );
-    write(root, "app/Cargo.toml", &format!("[package]\nname='review-app'\nversion='0.1.0'\nedition='2021'\n[dependencies]\n{}\ngit_alias={{package='demo',git='file://{}'}}\n", macro_dependency(), root.join("git-dep").display()));
+    write(root, "app/Cargo.toml", &format!("[package]\nname='review-app'\nversion='0.1.0'\nedition='2021'\n[dependencies]\n{}\ngit_alias={{package='demo',git='{git_url}'}}\n", macro_dependency()));
     succeeds(cargo(root, &["check", "-p", "review-app"]));
 
     let version_output = Command::new("rustc").arg("--version").output().unwrap();

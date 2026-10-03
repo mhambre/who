@@ -1,0 +1,46 @@
+name: Quality
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Check, lint, fmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust toolchains
+        run: |
+          rustup toolchain install stable --profile minimal --component clippy --component rustfmt --no-self-update
+          rustup toolchain install 1.74.0 --profile minimal --no-self-update
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: quality
+      - name: Check formatting
+        run: cargo +stable fmt --all -- --check
+      - name: Check with default features
+        run: cargo +stable check --all-targets --locked
+      - name: Check without default features
+        run: cargo +stable check --all-targets --locked --no-default-features
+      - name: Check with date support only
+        run: cargo +stable check --all-targets --locked --no-default-features --features date
+      - name: Check with file support only
+        run: cargo +stable check --all-targets --locked --no-default-features --features file
+      - name: Lint
+        run: |
+          cargo +stable clippy --all-targets --locked -- -D warnings
+          cargo +stable clippy --all-targets --locked --no-default-features -- -D warnings
+          cargo +stable clippy --all-targets --locked --no-default-features --features date -- -D warnings
+          cargo +stable clippy --all-targets --locked --no-default-features --features file -- -D warnings
+      - name: Check minimum Rust version
+        run: |
+          cargo +1.74.0 check --lib --locked
+          cargo +1.74.0 check --lib --locked --no-default-features
