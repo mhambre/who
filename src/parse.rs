@@ -71,7 +71,18 @@ fn parse_predicate(input: ParseStream<'_>) -> Result<Expr> {
     let argument;
     parenthesized!(argument in input);
     let name: Option<LitStr> = match kind.to_string().as_str() {
-        "dependency" | "file" => Some(argument.parse()?),
+        "dependency" => Some(argument.parse()?),
+        "file" => {
+            #[cfg(not(feature = "file"))]
+            return Err(syn::Error::new(
+                kind.span(),
+                "file predicates require the `file` feature on the `who` dependency",
+            ));
+            #[cfg(feature = "file")]
+            {
+                Some(argument.parse()?)
+            }
+        }
         "rustc" => None,
         "date" => {
             #[cfg(not(feature = "date"))]
@@ -135,6 +146,7 @@ fn parse_predicate(input: ParseStream<'_>) -> Result<Expr> {
             deadline: crate::conditions::date::parse(&literal.value())
                 .map_err(|message| syn::Error::new(literal.span(), message))?,
         },
+        #[cfg(feature = "file")]
         ("file", "changed_from") => {
             let hash = literal.value();
             let digest = hash.strip_prefix("sha256:").unwrap_or("");

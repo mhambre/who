@@ -1,9 +1,9 @@
 error: who assumption requires revalidation
-       expected: sha2 0.1.0
-       resolved: sha2 0.10.9
+       expected: semver 0.1.0
+       resolved: semver 1.0.28
        predicate: true
-       reason: Revalidate hash assumptions
+       reason: Revalidate dependency assumptions
  --> tests/ui/fail/dependency_changed.rs:2:17
   |
-2 |     who::error!(dependency("sha2").changed_from("0.1.0"), "Revalidate hash assumptions");
+2 |     who::error!(dependency("semver").changed_from("0.1.0"), "Revalidate dependency assumptions");
   |                 ^^^^^^^^^^

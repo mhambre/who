@@ -1,11 +1,11 @@
 error: use of deprecated constant `main::_::WHO_ASSUMPTION_REQUIRES_REVALIDATION`: who assumption requires revalidation
-       expected: sha2 0.1.0
-       resolved: sha2 0.10.9
+       expected: semver 0.1.0
+       resolved: semver 1.0.28
        predicate: true
-       reason: Revalidate hash assumptions
+       reason: Revalidate dependency assumptions
  --> tests/ui/fail/warning_denied.rs:4:16
   |
-4 |     who::warn!(dependency("sha2").changed_from("0.1.0"), "Revalidate hash assumptions");
+4 |     who::warn!(dependency("semver").changed_from("0.1.0"), "Revalidate dependency assumptions");
   |                ^^^^^^^^^^
   |
 note: the lint level is defined here
