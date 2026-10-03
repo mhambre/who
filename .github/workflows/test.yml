@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Default features
+            arguments: ""
+          - name: No default features
+            arguments: --no-default-features
+          - name: Date only
+            arguments: --no-default-features --features date
+          - name: File only
+            arguments: --no-default-features --features file
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: tests-${{ matrix.name }}
+      - name: Fetch dependencies for offline test fixtures
+        run: cargo +stable fetch --locked
+      - name: Run tests
+        run: cargo +stable test --locked ${{ matrix.arguments }}

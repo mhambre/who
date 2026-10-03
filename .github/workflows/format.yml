@@ -1,0 +1,22 @@
+name: Formatting
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install rustfmt
+        run: rustup toolchain install stable --profile minimal --component rustfmt --no-self-update
+      - name: Check formatting
+        run: cargo +stable fmt --all -- --check

@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: Formatting
+    uses: ./.github/workflows/format.yml
+
+  tests:
+    name: Tests
+    uses: ./.github/workflows/test.yml
+
+  linux:
+    name: Linux
+    uses: ./.github/workflows/build.yml
+    with:
+      runner: ubuntu-latest
+
+  macos:
+    name: macOS
+    uses: ./.github/workflows/build.yml
+    with:
+      runner: macos-latest
+
+  windows:
+    name: Windows
+    uses: ./.github/workflows/build.yml
+    with:
+      runner: windows-latest
