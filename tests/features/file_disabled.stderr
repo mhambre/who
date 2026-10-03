@@ -1,0 +1,5 @@
+error: file predicates require the `file` feature on the `who` dependency
+ --> tests/features/file_disabled.rs:2:16
+  |
+2 |     who::warn!(file("schema.proto").changed_from("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"), "file fe...
+  |                ^^^^

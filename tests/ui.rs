@@ -7,13 +7,12 @@ fn compile_time_guards() {
             .map(|entry| entry.unwrap().path())
             .filter(|path| path.extension().is_some_and(|extension| extension == "rs"))
             .filter(|path| {
-                cfg!(feature = "date")
-                    || !path
-                        .file_name()
-                        .unwrap()
-                        .to_str()
-                        .unwrap()
-                        .starts_with("date_")
+                let name = path.file_name().unwrap().to_str().unwrap();
+                (cfg!(feature = "date") || !name.starts_with("date_"))
+                    && (cfg!(feature = "file")
+                        || !(name.starts_with("file_")
+                            || name == "invalid_hash.rs"
+                            || name == "missing_file.rs"))
             })
             .collect();
         paths.sort();

@@ -1,3 +1,4 @@
+#[cfg(feature = "file")]
 use std::path::PathBuf;
 
 use proc_macro2::Span;
@@ -19,6 +20,7 @@ pub enum Predicate {
         name: String,
         requirement: VersionReq,
     },
+    #[cfg(feature = "file")]
     FileChangedFrom {
         path: PathBuf,
         hash: String,

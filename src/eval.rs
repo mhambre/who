@@ -6,7 +6,9 @@ use proc_macro2::Span;
 use semver::Version;
 
 use crate::ast::{Expr, Predicate};
-use crate::conditions::{dependency, file, rustc};
+#[cfg(feature = "file")]
+use crate::conditions::file;
+use crate::conditions::{dependency, rustc};
 
 pub struct Outcome {
     pub value: bool,
@@ -159,6 +161,7 @@ impl Context {
                     format!("rustc {resolved}"),
                 )
             }
+            #[cfg(feature = "file")]
             Predicate::FileChangedFrom { path, hash } => {
                 let full_path = self.manifest_dir.join(path);
                 let resolved = file::hash(&full_path)?;

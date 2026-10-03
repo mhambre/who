@@ -15,8 +15,9 @@ categories = ["development-tools", "development-tools::build-utils"]
 proc-macro = true
 
 [features]
-default = ["date"]
+default = ["date", "file"]
 date = ["dep:chrono", "dep:chrono-tz"]
+file = ["dep:sha2"]
 
 [dependencies]
 chrono = { version = "0.4.45", default-features = false, features = ["now"], optional = true }
@@ -25,7 +26,7 @@ proc-macro2 = "1"
 quote = "1"
 semver = "1"
 serde = { version = "1", features = ["derive"] }
-sha2 = "0.10"
+sha2 = { version = "0.10", optional = true }
 syn = "2"
 toml = "0.5.11"
 
