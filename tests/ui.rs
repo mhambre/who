@@ -10,9 +10,7 @@ fn compile_time_guards() {
                 let name = path.file_name().unwrap().to_str().unwrap();
                 (cfg!(feature = "date") || !name.starts_with("date_"))
                     && (cfg!(feature = "file")
-                        || !(name.starts_with("file_")
-                            || name == "invalid_hash.rs"
-                            || name == "missing_file.rs"))
+                        || !(name.starts_with("file_") || name == "invalid_hash.rs"))
             })
             .collect();
         paths.sort();

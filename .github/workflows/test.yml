@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: GitHub-hosted runner label
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: All tests
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - name: Restore Cargo cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: tests-${{ inputs.runner }}
+      - name: Fetch dependencies for offline test fixtures
+        run: cargo +stable fetch --locked
+      - name: Test with default features
+        run: cargo +stable test --locked
+      - name: Test without default features
+        run: cargo +stable test --locked --no-default-features
+      - name: Test with date support only
+        run: cargo +stable test --locked --no-default-features --features date
+      - name: Test with file support only
+        run: cargo +stable test --locked --no-default-features --features file

@@ -68,4 +68,11 @@ fn consumer_can_disable_and_enable_file_support() {
     let output = check();
     assert!(!output.status.success());
     assert!(String::from_utf8_lossy(&output.stderr).contains("reason: file drift"));
+
+    fs::remove_file(root.join("schema.proto")).unwrap();
+    let output = check();
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.contains("cannot read file"), "{stderr}");
+    assert!(stderr.contains("schema.proto"), "{stderr}");
 }
