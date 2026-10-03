@@ -1,0 +1,5 @@
+error: date predicates require the `date` feature on the `who` dependency
+ --> tests/features/date_disabled.rs:2:16
+  |
+2 |     who::warn!(date().after("2026-01-01"), "date feature is disabled");
+  |                ^^^^

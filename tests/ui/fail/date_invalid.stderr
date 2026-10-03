@@ -1,0 +1,17 @@
+error: invalid date: expected RFC 3339, RFC 2822, YYYY-MM-DD, or YYYY-MM-DD[ T]HH:MM[:SS[.fraction]] with an optional numeric UTC offset or IANA timezone; dates without a timezone use UTC
+ --> tests/ui/fail/date_invalid.rs:2:30
+  |
+2 |     who::error!(date().after("2026-02-29"), "invalid calendar date");
+  |                              ^^^^^^^^^^^^
+
+error: invalid date: expected RFC 3339, RFC 2822, YYYY-MM-DD, or YYYY-MM-DD[ T]HH:MM[:SS[.fraction]] with an optional numeric UTC offset or IANA timezone; dates without a timezone use UTC
+ --> tests/ui/fail/date_invalid.rs:3:29
+  |
+3 |     who::warn!(date().after("tomorrow"), "relative dates are not supported");
+  |                             ^^^^^^^^^^
+
+error: invalid date: expected RFC 3339, RFC 2822, YYYY-MM-DD, or YYYY-MM-DD[ T]HH:MM[:SS[.fraction]] with an optional numeric UTC offset or IANA timezone; dates without a timezone use UTC
+ --> tests/ui/fail/date_invalid.rs:4:30
+  |
+4 |     who::error!(date().after("2026-10-03T12:00:00+25:00"), "invalid timezone offset");
+  |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^

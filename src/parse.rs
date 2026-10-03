@@ -73,10 +73,21 @@ fn parse_predicate(input: ParseStream<'_>) -> Result<Expr> {
     let name: Option<LitStr> = match kind.to_string().as_str() {
         "dependency" | "file" => Some(argument.parse()?),
         "rustc" => None,
+        "date" => {
+            #[cfg(not(feature = "date"))]
+            return Err(syn::Error::new(
+                kind.span(),
+                "date predicates require the `date` feature on the `who` dependency",
+            ));
+            #[cfg(feature = "date")]
+            {
+                None
+            }
+        }
         _ => {
             return Err(syn::Error::new(
                 kind.span(),
-                "expected dependency(...), file(...), or rustc()",
+                "expected dependency(...), file(...), rustc(), or date()",
             ))
         }
     };
@@ -118,6 +129,11 @@ fn parse_predicate(input: ParseStream<'_>) -> Result<Expr> {
         },
         ("rustc", "matches") => Predicate::RustcMatches {
             requirement: requirement()?,
+        },
+        #[cfg(feature = "date")]
+        ("date", "after") => Predicate::DateAfter {
+            deadline: crate::conditions::date::parse(&literal.value())
+                .map_err(|message| syn::Error::new(literal.span(), message))?,
         },
         ("file", "changed_from") => {
             let hash = literal.value();

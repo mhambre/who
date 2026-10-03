@@ -1,6 +1,6 @@
 [package]
 name = "who"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.74"
 authors = ["Matthew Hambrecht <hambrechtmatt@gmail.com>"]
@@ -14,7 +14,13 @@ categories = ["development-tools", "development-tools::build-utils"]
 [lib]
 proc-macro = true
 
+[features]
+default = ["date"]
+date = ["dep:chrono", "dep:chrono-tz"]
+
 [dependencies]
+chrono = { version = "0.4.45", default-features = false, features = ["now"], optional = true }
+chrono-tz = { version = "0.10.4", optional = true }
 proc-macro2 = "1"
 quote = "1"
 semver = "1"

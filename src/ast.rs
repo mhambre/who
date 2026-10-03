@@ -29,4 +29,8 @@ pub enum Predicate {
     RustcMatches {
         requirement: VersionReq,
     },
+    #[cfg(feature = "date")]
+    DateAfter {
+        deadline: chrono::DateTime<chrono::Utc>,
+    },
 }
