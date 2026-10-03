@@ -1,0 +1,11 @@
+error: invalid semver requirement: unexpected character 'b' while parsing major version number
+ --> tests/ui/fail/invalid_semver.rs:2:46
+  |
+2 |     who::error!(dependency("semver").matches("banana"), "bad requirement");
+  |                                              ^^^^^^^^
+
+error: invalid exact version: unexpected end of input while parsing minor version number
+ --> tests/ui/fail/invalid_semver.rs:3:38
+  |
+3 |     who::error!(rustc().changed_from("1.2"), "bad exact version");
+  |                                      ^^^^^

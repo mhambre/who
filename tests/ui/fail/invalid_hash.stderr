@@ -1,0 +1,5 @@
+error: expected sha256: followed by 64 hexadecimal digits
+ --> tests/ui/fail/invalid_hash.rs:2:51
+  |
+2 |     who::error!(file("schema.proto").changed_from("sha256:abc123"), "bad hash");
+  |                                                   ^^^^^^^^^^^^^^^

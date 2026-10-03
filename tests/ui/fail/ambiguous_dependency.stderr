@@ -1,0 +1,8 @@
+error: who: dependency `syn` resolves to multiple packages:
+         - 2.0.119 (registry+https://github.com/rust-lang/crates.io-index)
+         - 3.0.6 (registry+https://github.com/rust-lang/crates.io-index)
+       The condition is ambiguous; optional, target, build, and dev dependencies are included.
+ --> tests/ui/fail/ambiguous_dependency.rs:2:17
+  |
+2 |     who::error!(dependency("syn").matches("*"), "multiple resolved versions");
+  |                 ^^^^^^^^^^

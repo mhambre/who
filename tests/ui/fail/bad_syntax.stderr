@@ -1,0 +1,5 @@
+error: expected identifier, found keyword `true`
+ --> tests/ui/fail/bad_syntax.rs:2:17
+  |
+2 |     who::error!(true, "arbitrary Rust expressions are not supported");
+  |                 ^^^^

@@ -1,0 +1,28 @@
+[package]
+name = "who"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+authors = ["Matthew Hambrecht <hambrechtmatt@gmail.com>"]
+description = "Compile-time review triggers for code whose correctness, necessity, or performance depends on things the compiler cannot verify."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mhambre/who"
+readme = "README.md"
+keywords = ["compile-time", "proc-macro", "correctness", "assumptions", "code-review"]
+categories = ["development-tools", "development-tools::build-utils"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+semver = "1"
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+syn = "2"
+toml = "0.5.11"
+
+[dev-dependencies]
+tempfile = "=3.10.1"
+trybuild = "=1.0.80"

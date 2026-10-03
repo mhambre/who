@@ -1,0 +1,149 @@
+use std::collections::BTreeSet;
+use std::path::PathBuf;
+use std::{env, fs};
+
+use proc_macro2::Span;
+use semver::Version;
+
+use crate::ast::{Expr, Predicate};
+use crate::conditions::{dependency, file, rustc};
+
+pub struct Outcome {
+    pub value: bool,
+    pub details: Vec<String>,
+}
+
+pub struct Context {
+    manifest_dir: PathBuf,
+    graph: Option<dependency::Graph>,
+    compiler: Option<Version>,
+    tracked: BTreeSet<PathBuf>,
+}
+
+impl Context {
+    pub fn from_env(span: Span) -> syn::Result<Self> {
+        let manifest_dir = env::var_os("CARGO_MANIFEST_DIR")
+            .ok_or_else(|| syn::Error::new(span, "who: macros must be compiled through Cargo"))?
+            .into();
+        Ok(Self {
+            manifest_dir,
+            graph: None,
+            compiler: None,
+            tracked: BTreeSet::new(),
+        })
+    }
+
+    pub fn tracked_paths(&self) -> impl Iterator<Item = &PathBuf> {
+        self.tracked.iter()
+    }
+
+    pub fn evaluate(&mut self, expression: &Expr) -> syn::Result<Outcome> {
+        match expression {
+            Expr::Predicate(predicate, span) => self
+                .predicate(predicate)
+                .map_err(|message| syn::Error::new(*span, message)),
+            Expr::Not(inner) => {
+                let mut outcome = self.evaluate(inner)?;
+                outcome.value = !outcome.value;
+                Ok(outcome)
+            }
+            Expr::And(left, right) | Expr::Or(left, right) => {
+                // Evaluate both sides so invalid guards cannot hide behind boolean operators.
+                let mut left = self.evaluate(left)?;
+                let right = self.evaluate(right)?;
+                left.value = match expression {
+                    Expr::And(_, _) => left.value && right.value,
+                    _ => left.value || right.value,
+                };
+                left.details.extend(right.details);
+                Ok(left)
+            }
+        }
+    }
+
+    fn dependency(&mut self, name: &str) -> Result<Version, String> {
+        if self.graph.is_none() {
+            if env::var_os("CARGO_RESOLVER_LOCKFILE_PATH").is_some() {
+                return Err("who: custom resolver lockfile paths are not supported".into());
+            }
+            let (path, manifests) = dependency::locate(&self.manifest_dir)?;
+            let compiler_dir = env::current_dir()
+                .map_err(|error| format!("who: cannot identify compiler directory: {error}"))?;
+            let root = fs::canonicalize(path.parent().unwrap())
+                .map_err(|error| format!("who: cannot identify lockfile directory: {error}"))?;
+            let compiler_dir = fs::canonicalize(compiler_dir)
+                .map_err(|error| format!("who: cannot identify compiler directory: {error}"))?;
+            if compiler_dir != root {
+                return Err("who: the caller's workspace differs from the compiler's working directory; dependency guards cannot safely use this package's development lockfile when another workspace consumes it".into());
+            }
+            let name = env::var("CARGO_PKG_NAME")
+                .map_err(|error| format!("who: missing package name: {error}"))?;
+            let version = env::var("CARGO_PKG_VERSION")
+                .map_err(|error| format!("who: missing package version: {error}"))?;
+            self.graph = Some(dependency::Graph::read(&path, &name, &version)?);
+            self.tracked.insert(path);
+            self.tracked.extend(manifests);
+        }
+        self.graph.as_ref().unwrap().version(name)
+    }
+
+    fn compiler(&mut self) -> Result<Version, String> {
+        if self.compiler.is_none() {
+            self.compiler = Some(rustc::version()?);
+        }
+        Ok(self.compiler.as_ref().unwrap().clone())
+    }
+
+    fn predicate(&mut self, predicate: &Predicate) -> Result<Outcome, String> {
+        let (value, expected, resolved) = match predicate {
+            Predicate::DependencyChangedFrom { name, version } => {
+                let resolved = self.dependency(name)?;
+                (
+                    resolved != *version,
+                    format!("{name} {version}"),
+                    format!("{name} {resolved}"),
+                )
+            }
+            Predicate::DependencyMatches { name, requirement } => {
+                let resolved = self.dependency(name)?;
+                (
+                    requirement.matches(&resolved),
+                    format!("{name} matches {requirement}"),
+                    format!("{name} {resolved}"),
+                )
+            }
+            Predicate::RustcChangedFrom { version } => {
+                let resolved = self.compiler()?;
+                (
+                    resolved != *version,
+                    format!("rustc {version}"),
+                    format!("rustc {resolved}"),
+                )
+            }
+            Predicate::RustcMatches { requirement } => {
+                let resolved = self.compiler()?;
+                (
+                    requirement.matches(&resolved),
+                    format!("rustc matches {requirement}"),
+                    format!("rustc {resolved}"),
+                )
+            }
+            Predicate::FileChangedFrom { path, hash } => {
+                let full_path = self.manifest_dir.join(path);
+                let resolved = file::hash(&full_path)?;
+                self.tracked.insert(full_path);
+                (
+                    resolved != *hash,
+                    format!("{} {hash}", path.display()),
+                    format!("{} {resolved}", path.display()),
+                )
+            }
+        };
+        Ok(Outcome {
+            value,
+            details: vec![format!(
+                "expected: {expected}\nresolved: {resolved}\npredicate: {value}"
+            )],
+        })
+    }
+}

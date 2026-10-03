@@ -1,0 +1,60 @@
+//! Know who changed what your code depends on.
+//!
+//! Add compile-time review triggers for code whose correctness, necessity, or performance depends on things the compiler cannot verify.
+//!
+//! Tests validate behavior. Use `who::warn!` and `who::error!` to bring code back up for review when the context around it changes.
+//!
+//! For example, suppose a compiler bug forces you to disable an optimized implementation:
+//!
+//! ```rust
+//! fn transform(input: &[f32], output: &mut [f32]) {
+//!     who::warn!(
+//!         rustc().changed_from("1.95.0"),
+//!         "Recheck rust-lang/rust#123456 and restore the SIMD path if fixed"
+//!     );
+//!
+//!     // SIMD path disabled because of a compiler codegen bug.
+//!     scalar_transform(input, output);
+//! }
+//! ```
+//!
+//! The scalar path may be completely correct and well tested.
+//! Those tests will still pass after the compiler bug is fixed.
+//!
+//! When the compiler version changes, `who` brings this code back to your attention so the workaround does not silently become permanent.
+
+mod ast;
+mod conditions;
+mod diagnostic;
+mod eval;
+mod parse;
+
+use proc_macro::TokenStream;
+
+/// Warn when a condition holds. Respects the caller's `deprecated` lint level.
+#[proc_macro]
+pub fn warn(input: TokenStream) -> TokenStream {
+    expand(input, diagnostic::Severity::Warning)
+}
+
+/// Fail compilation when a condition holds.
+#[proc_macro]
+pub fn error(input: TokenStream) -> TokenStream {
+    expand(input, diagnostic::Severity::Error)
+}
+
+fn expand(input: TokenStream, severity: diagnostic::Severity) -> TokenStream {
+    let result = syn::parse::<parse::Guard>(input).and_then(|guard| {
+        let mut context = eval::Context::from_env(guard.span)?;
+        let outcome = context.evaluate(&guard.condition)?;
+        Ok(diagnostic::expand(
+            &guard,
+            outcome,
+            context.tracked_paths(),
+            severity,
+        ))
+    });
+    result
+        .unwrap_or_else(|error| error.into_compile_error())
+        .into()
+}

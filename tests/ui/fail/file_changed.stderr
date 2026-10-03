@@ -1,0 +1,9 @@
+error: who assumption requires revalidation
+       expected: ../../../../tests/data/schema.proto sha256:0000000000000000000000000000000000000000000000000000000000000000
+       resolved: ../../../../tests/data/schema.proto sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+       predicate: true
+       reason: Revalidate decoder
+ --> tests/ui/fail/file_changed.rs:2:17
+  |
+2 |     who::error!(file("../../../../tests/data/schema.proto").changed_from("sha256:0000000000000000000000000000000000000000000000000000...
+  |                 ^^^^
