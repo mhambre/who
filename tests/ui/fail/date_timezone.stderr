@@ -1,0 +1,17 @@
+error: ambiguous local date `2026-11-01 01:30 America/New_York`: use an explicit numeric UTC offset to select one instant
+ --> tests/ui/fail/date_timezone.rs:2:30
+  |
+2 |     who::error!(date().after("2026-11-01 01:30 America/New_York"), "ambiguous local time");
+  |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: nonexistent local date `2026-03-08 02:30 America/New_York`: choose a valid local time or use an explicit numeric UTC offset
+ --> tests/ui/fail/date_timezone.rs:3:29
+  |
+3 |     who::warn!(date().after("2026-03-08 02:30 America/New_York"), "nonexistent local time");
+  |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: invalid timezone `America/Unknown`: expected an IANA name such as America/New_York
+ --> tests/ui/fail/date_timezone.rs:4:30
+  |
+4 |     who::error!(date().after("2026-10-03 12:30 America/Unknown"), "invalid zone");
+  |                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

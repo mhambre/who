@@ -96,6 +96,12 @@ alias = {{ package = "demo", path = "demo" }}
     let app_manifest = format!("[package]\nname='review-app'\nversion='0.1.0'\nedition='2021'\n[dependencies]\n{}\nalias={{package='demo',path='../demo'}}\n", macro_dependency());
     write(root, "app/Cargo.toml", &app_manifest);
     write(root, "app/schema.proto", "");
+    let date_guards = if cfg!(feature = "date") {
+        r#"guards::warn!(date().after("2000-01-01T00:00:00+05:30"), "UNIQUE_DATE_REASON");
+    guards::error!(date().after("9999-12-31"), "UNIQUE_FUTURE_DATE_REASON");"#
+    } else {
+        ""
+    };
     let guard_source = format!(
         r#"
 fn main() {{
@@ -103,6 +109,7 @@ fn main() {{
     guards::warn!(dependency("demo").matches("^1.2"), "UNIQUE_ACTIVE_REASON");
     guards::warn!(file("schema.proto").changed_from("{EMPTY_HASH}"), "UNIQUE_FILE_REASON");
     guards::warn!(!rustc().matches(">=1"), "UNIQUE_RUSTC_REASON");
+    {date_guards}
     println!("{{}}", alias::VALUE);
 }}
 "#
@@ -115,6 +122,24 @@ fn main() {{
     );
     assert!(stderr.contains("UNIQUE_ACTIVE_REASON"), "{stderr}");
     assert!(stderr.contains("app/src/main.rs:4:"), "{stderr}");
+    if cfg!(feature = "date") {
+        assert!(stderr.contains("UNIQUE_DATE_REASON"), "{stderr}");
+        assert!(
+            stderr.contains("expected: compilation time after 1999-12-31T18:30:00+00:00"),
+            "{stderr}"
+        );
+        assert!(stderr.contains("resolved: compilation time"), "{stderr}");
+        write(
+            root,
+            "app/src/main.rs",
+            "fn main() { guards::error!(date().after(\"2000-01-01\"), \"past deadline\"); }",
+        );
+        fails(
+            cargo(root, &["check", "-p", "review-app"]),
+            "reason: past deadline",
+        );
+        write(root, "app/src/main.rs", &guard_source);
+    }
     succeeds(cargo(root, &["build", "-p", "review-app"]));
     let default_debug = fs::read(root.join("target/debug/review-app")).unwrap();
     for forbidden in ["UNIQUE_", "WHO_ASSUMPTION", "sha256:", "schema.proto"] {
@@ -151,6 +176,9 @@ fn main() {{
                 "1.2.3",
                 "Cargo.lock",
                 "requires revalidation",
+                "compilation time",
+                "2000-01-01",
+                "9999-12-31",
             ] {
                 assert!(!ir.contains(forbidden), "runtime IR contains {forbidden}");
             }

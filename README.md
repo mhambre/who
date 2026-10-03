@@ -69,6 +69,20 @@ use_compatibility_path();
 
 Instead of leaving reminders scattered through the codebase and hoping someone notices them later, `who` resurfaces them when the dependency actually changes.
 
+### Revisit a temporary workaround on a date
+
+An upstream change can have a planned date even when you do not know its release version:
+
+```rust
+who::warn!(
+    date().after("2027-01-01 09:00 America/New_York"),
+    "Check whether the migration finished and remove this fallback"
+);
+```
+
+This compares the compilation time with the deadline.
+It requests a review after that instant, even if no dependency version changes.
+
 ## When to use it
 
 Use `who` when a change outside your code should bring a specific assumption or workaround back to your attention.
@@ -138,6 +152,7 @@ Supported conditions:
 | `file("schema.proto").changed_from("sha256:...")` | The file contents differ from the expected hash |
 | `rustc().changed_from("1.95.0")` | The compiler version differs from `1.95.0` |
 | `rustc().matches(">=1.96")` | The compiler version matches the requirement |
+| `date().after("2027-01-01")` | The compilation time is after the given date or time |
 
 Exact versions must include major, minor, and patch numbers.
 
@@ -186,6 +201,16 @@ who::warn!(
 ```
 
 The `sha256:` prefix is required.
+
+### Date triggers
+
+Use `date().after("2027-01-01")` to request a review after midnight UTC on that date.
+Dates and times without a timezone use UTC.
+
+You can also include a time, numeric offset, or named timezone:
+`2027-01-01 09:30`, `2027-01-01T09:30:00-05:00`, or `2027-01-01 09:30 America/New_York`.
+
+Date triggers run during compilation, so passing a deadline does not trigger a warning until Cargo recompiles the calling crate.
 
 ### Warnings
 

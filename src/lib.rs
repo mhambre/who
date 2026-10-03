@@ -7,6 +7,7 @@
 //! For example, suppose a compiler bug forces you to disable an optimized implementation:
 //!
 //! ```rust
+//! # fn scalar_transform(input: &[f32], output: &mut [f32]) { output.copy_from_slice(input); }
 //! fn transform(input: &[f32], output: &mut [f32]) {
 //!     who::warn!(
 //!         rustc().changed_from("1.95.0"),

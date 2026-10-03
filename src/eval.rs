@@ -13,10 +13,39 @@ pub struct Outcome {
     pub details: Vec<String>,
 }
 
+#[cfg(all(test, feature = "date"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn date_predicates_share_one_clock_read() {
+        let now = crate::conditions::date::parse("2026-10-03T12:30:00Z").unwrap();
+        let mut context = Context {
+            manifest_dir: PathBuf::new(),
+            graph: None,
+            compiler: None,
+            now: Some(now),
+            tracked: BTreeSet::new(),
+        };
+        let guard: crate::parse::Guard = syn::parse_str(
+            "date().after(\"2026-10-03T12:29:59Z\") && !date().after(\"2026-10-03T12:30:00Z\"), \"strict boundary\"",
+        ).unwrap();
+        let outcome = context.evaluate(&guard.condition).unwrap();
+        assert!(outcome.value);
+        assert!(outcome.details.iter().all(
+            |details| details.contains("resolved: compilation time 2026-10-03T12:30:00+00:00")
+        ));
+        assert_eq!(context.now, Some(now));
+        assert!(context.tracked.is_empty());
+    }
+}
+
 pub struct Context {
     manifest_dir: PathBuf,
     graph: Option<dependency::Graph>,
     compiler: Option<Version>,
+    #[cfg(feature = "date")]
+    now: Option<chrono::DateTime<chrono::Utc>>,
     tracked: BTreeSet<PathBuf>,
 }
 
@@ -29,6 +58,8 @@ impl Context {
             manifest_dir,
             graph: None,
             compiler: None,
+            #[cfg(feature = "date")]
+            now: None,
             tracked: BTreeSet::new(),
         })
     }
@@ -136,6 +167,15 @@ impl Context {
                     resolved != *hash,
                     format!("{} {hash}", path.display()),
                     format!("{} {resolved}", path.display()),
+                )
+            }
+            #[cfg(feature = "date")]
+            Predicate::DateAfter { deadline } => {
+                let now = *self.now.get_or_insert_with(chrono::Utc::now);
+                (
+                    crate::conditions::date::after(now, *deadline),
+                    format!("compilation time after {}", deadline.to_rfc3339()),
+                    format!("compilation time {}", now.to_rfc3339()),
                 )
             }
         };

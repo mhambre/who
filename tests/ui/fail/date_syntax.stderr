@@ -1,0 +1,17 @@
+error: unexpected predicate argument
+ --> tests/ui/fail/date_syntax.rs:2:22
+  |
+2 |     who::error!(date("2026-01-01").after("2026-02-01"), "date takes no arguments");
+  |                      ^^^^^^^^^^^^
+
+error: unsupported predicate method
+ --> tests/ui/fail/date_syntax.rs:3:24
+  |
+3 |     who::error!(date().before("2026-01-01"), "only after is supported");
+  |                        ^^^^^^
+
+error: expected one string argument
+ --> tests/ui/fail/date_syntax.rs:4:42
+  |
+4 |     who::error!(date().after("2026-01-01", "UTC"), "after takes one string");
+  |                                          ^
