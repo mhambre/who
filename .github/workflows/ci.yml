@@ -3,41 +3,15 @@ name: CI
 on:
   push:
     branches: [master]
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'examples/**'
-      - 'benches/**'
-      - '**/Cargo.toml'
-      - '**/Cargo.lock'
-      - '**/build.rs'
-      - '.cargo/**'
-      - '.github/workflows/**'
-      - '.github/actions/**'
-      - 'rust-toolchain*'
-      - '.rustfmt.toml'
-      - '.clippy.toml'
-      - 'clippy.toml'
-      - '.gitattributes'
-      - '.gitignore'
+    # Skip documentation-only changes; non-documentation changes still run CI.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   pull_request:
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'examples/**'
-      - 'benches/**'
-      - '**/Cargo.toml'
-      - '**/Cargo.lock'
-      - '**/build.rs'
-      - '.cargo/**'
-      - '.github/workflows/**'
-      - '.github/actions/**'
-      - 'rust-toolchain*'
-      - '.rustfmt.toml'
-      - '.clippy.toml'
-      - 'clippy.toml'
-      - '.gitattributes'
-      - '.gitignore'
+    # paths-ignore runs the workflow if any changed path is not documentation.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   workflow_dispatch:
 
 permissions:
