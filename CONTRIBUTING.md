@@ -11,28 +11,28 @@ rustup toolchain install stable --profile minimal --component clippy --component
 rustup toolchain install 1.74.0 --profile minimal
 ```
 
-From the repository root, run the same checks used by CI:
+From the repository root, run the general checks used by CI:
 
 ```bash
 cargo +stable fmt --all -- --check
 cargo +stable check --all-targets --locked
 cargo +stable check --all-targets --locked --no-default-features
-cargo +stable check --all-targets --locked --no-default-features --features date
-cargo +stable check --all-targets --locked --no-default-features --features file
-
 cargo +stable clippy --all-targets --locked -- -D warnings
 cargo +stable clippy --all-targets --locked --no-default-features -- -D warnings
-cargo +stable clippy --all-targets --locked --no-default-features --features date -- -D warnings
-cargo +stable clippy --all-targets --locked --no-default-features --features file -- -D warnings
-
 cargo +stable fetch --locked
 cargo +stable test --locked
 cargo +stable test --locked --no-default-features
-cargo +stable test --locked --no-default-features --features date
-cargo +stable test --locked --no-default-features --features file
 
 cargo +1.74.0 check --lib --locked
 cargo +1.74.0 check --lib --locked --no-default-features
+```
+
+If you add or modify a feature, check, lint, and test it as well. Replace `<feature>` with the feature being changed:
+
+```bash
+cargo +stable check --all-targets --locked --no-default-features --features <feature>
+cargo +stable clippy --all-targets --locked --no-default-features --features <feature> -- -D warnings
+cargo +stable test --locked --no-default-features --features <feature>
 ```
 
 Keep `Cargo.lock` in sync when changing dependencies or package versions; CI uses `--locked`.
@@ -51,4 +51,4 @@ Update `docs/dsl.md` when syntax or predicate behavior changes, and update the R
 
 ## Pull requests
 
-Keep each pull request focused. Explain the motivation and user-visible change, mention relevant feature or compatibility considerations, and list the checks you ran. Include tests and documentation updates appropriate to the change.
+Keep each pull request focused. Prefix its title with a Conventional Commits type, using `<type>(<optional scope>): <description>` (for example, `docs: clarify feature test guidance`). Explain the motivation and user-visible change, mention relevant feature or compatibility considerations, and list the checks you ran. Include tests and documentation updates appropriate to the change.
