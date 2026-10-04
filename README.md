@@ -1,5 +1,10 @@
 # who
 
+[![Crates.io](https://img.shields.io/crates/v/who.svg)](https://crates.io/crates/who)
+[![Downloads](https://img.shields.io/crates/d/who.svg)](https://crates.io/crates/who)
+[![CI](https://github.com/mhambre/who/actions/workflows/ci.yml/badge.svg)](https://github.com/mhambre/who/actions/workflows/ci.yml)
+![Supported operating systems](https://img.shields.io/badge/OS-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
+
 `who` lets you replace TODO comments that would otherwise get lost to the abyss with compile-time review triggers for code whose correctness, performance, or necessity depends on external context the compiler cannot verify, such as dependency behavior, file contents, or the compiler version.
 
 Determine **who** should bring you back if their context changes.
