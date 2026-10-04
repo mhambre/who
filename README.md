@@ -137,6 +137,8 @@ When the condition is false, the macro leaves no runtime behavior behind.
 
 See the [DSL reference](docs/dsl.md) for fields, comparison methods, and boolean expressions.
 
+See the [changelog](CHANGELOG.md) for release history.
+
 ### Warnings
 
 Stable Rust does not currently expose general proc-macro warning diagnostics, so `who::warn!` emits its warning through a deprecated constant.
