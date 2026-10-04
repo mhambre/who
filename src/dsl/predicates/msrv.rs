@@ -9,6 +9,11 @@ pub struct Condition {
 }
 
 impl Condition {
+    /// Expose the version rule's deprecated syntax location.
+    pub fn deprecated_method(&self) -> Option<proc_macro2::Span> {
+        self.rule.deprecated_method()
+    }
+
     /// Parse a version rule after an empty msrv() receiver.
     pub fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
         arguments::empty(input)?;

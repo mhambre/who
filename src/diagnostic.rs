@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
+use crate::dsl::ast::Expr;
 use crate::dsl::Guard;
 use crate::eval::Outcome;
 
@@ -19,6 +20,7 @@ pub fn expand<'a>(
     severity: Severity,
 ) -> TokenStream {
     let span = guard.span;
+    let deprecations = deprecated_methods(&guard.condition);
     let tracked = paths.map(|path| {
         let path = path.to_string_lossy().into_owned();
         // include_bytes makes Cargo track inputs without retaining their contents at runtime.
@@ -40,8 +42,31 @@ pub fn expand<'a>(
     quote_spanned! {span=>
         const _: () = {
             #(#tracked)*
+            #deprecations
             #diagnostic
         };
+    }
+}
+
+/// Warn about deprecated syntax even when no review trigger fires.
+fn deprecated_methods(expression: &Expr) -> TokenStream {
+    match expression {
+        Expr::Predicate(predicate, _) => predicate.deprecated_method().map_or_else(
+            TokenStream::new,
+            |span| quote_spanned! {span=>
+                let _: () = {
+                    #[deprecated(note = "who: .matches(...) is deprecated; use .compare(...) instead")]
+                    const WHO_MATCHES_IS_DEPRECATED: () = ();
+                    let _ = WHO_MATCHES_IS_DEPRECATED;
+                };
+            },
+        ),
+        Expr::Not(inner) => deprecated_methods(inner),
+        Expr::And(left, right) | Expr::Or(left, right) => {
+            let left = deprecated_methods(left);
+            let right = deprecated_methods(right);
+            quote! { #left #right }
+        }
     }
 }
 

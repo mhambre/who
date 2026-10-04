@@ -10,6 +10,11 @@ pub struct Condition {
 }
 
 impl Condition {
+    /// Expose the version rule's deprecated syntax location.
+    pub fn deprecated_method(&self) -> Option<proc_macro2::Span> {
+        self.rule.deprecated_method()
+    }
+
     /// Parse a Cargo package name and its version rule without reading Cargo state.
     pub fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
         let name = arguments::named(input)?.value();

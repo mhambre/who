@@ -111,6 +111,7 @@ fn main() {{
     guards::warn!(!rustc().compare(">=1"), "UNIQUE_RUSTC_REASON");
     guards::warn!(msrv().compare(">=1.74"), "UNIQUE_MSRV_REASON");
     guards::error!(msrv().changed_from("1.74.0"), "UNIQUE_MSRV_BASELINE_REASON");
+    guards::error!(rustc().matches("<1"), "UNIQUE_LEGACY_REASON");
     {date_guards}
     println!("{{}}", alias::VALUE);
 }}
@@ -148,7 +149,14 @@ fn main() {{
     succeeds(cargo(root, &["build", "-p", "review-app"]));
     let executable_name = format!("review-app{}", std::env::consts::EXE_SUFFIX);
     let default_debug = fs::read(root.join("target/debug").join(&executable_name)).unwrap();
-    for forbidden in ["UNIQUE_", "WHO_ASSUMPTION", "sha256:", "schema.proto"] {
+    for forbidden in [
+        "UNIQUE_",
+        "WHO_ASSUMPTION",
+        "WHO_MATCHES",
+        ".matches(...)",
+        "sha256:",
+        "schema.proto",
+    ] {
         assert!(
             !default_debug
                 .windows(forbidden.len())

@@ -26,6 +26,8 @@ fn main() {
     who::error!(msrv().changed_from("1.74.0"), "revisit compatibility");
     who::error!(!msrv().compare(">=1.74, <1.75"), "supported minimum");
     who::warn!(msrv().compare("=1.74.0"), "minimum version review");
+    who::error!(msrv().matches("<1"), "inactive alias");
+    who::error!(!msrv().matches(">=1.74, <1.75"), "same semver semantics");
 }
 "#,
     )
@@ -33,6 +35,10 @@ fn main() {
     let output = diagnostics(project.check(), true);
     assert!(output.contains("minimum version review"), "{output}");
     assert!(output.contains("resolved: msrv 1.74.0"), "{output}");
+    assert!(
+        output.contains(".matches(...) is deprecated; use .compare(...) instead"),
+        "{output}"
+    );
     fs::write(
         &path,
         direct.replace("rust-version='1.74'", "rust-version='1.75'"),

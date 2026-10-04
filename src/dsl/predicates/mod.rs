@@ -64,6 +64,19 @@ fn disabled(input: ParseStream<'_>, kind: &Ident, feature: &str) -> Result<syn::
 }
 
 impl Predicate {
+    /// Expose syntax deprecations independently of predicate truth values.
+    pub fn deprecated_method(&self) -> Option<Span> {
+        match self {
+            Self::Dependency(condition) => condition.deprecated_method(),
+            Self::Rustc(condition) => condition.deprecated_method(),
+            Self::Msrv(condition) => condition.deprecated_method(),
+            #[cfg(feature = "file")]
+            Self::File(_) => None,
+            #[cfg(feature = "date")]
+            Self::Date(_) => None,
+        }
+    }
+
     /// Delegate evaluation without inspecting family-specific arguments.
     pub fn evaluate(
         &self,

@@ -52,7 +52,6 @@ Exact versions must include major, minor, and patch numbers.
 Semver requirements use the [`semver`](https://docs.rs/semver) crate's syntax.
 `compare` triggers when the version satisfies the requirement.
 Use `!` to trigger outside an allowed range.
-Replace existing `.matches(...)` calls with `.compare(...)`.
 
 ```text
 >=2

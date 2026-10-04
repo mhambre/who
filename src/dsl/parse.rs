@@ -101,7 +101,7 @@ mod tests {
                 assert!(syn::parse_str::<Guard>(&text).is_ok(), "{text}");
             }
             let legacy = format!("{field}.matches(\"*\"), \"reason\"");
-            assert!(syn::parse_str::<Guard>(&legacy).is_err(), "{legacy}");
+            assert!(syn::parse_str::<Guard>(&legacy).is_ok(), "{legacy}");
         }
     }
 }
