@@ -1,5 +1,7 @@
 # who
 
+[![CodeQL](https://github.com/mhambre/who/actions/workflows/codeql.yml/badge.svg)](https://github.com/mhambre/who/actions/workflows/codeql.yml)
+
 `who` lets you replace TODO comments that would otherwise get lost to the abyss with compile-time review triggers for code whose correctness, performance, or necessity depends on external context the compiler cannot verify, such as dependency behavior, file contents, or the compiler version.
 
 Determine **who** should bring you back if their context changes.
