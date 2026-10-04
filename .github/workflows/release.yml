@@ -1,0 +1,108 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Run all checks and `cargo publish --dry-run` without publishing, tagging, or releasing
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate version
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Require default branch
+        if: github.ref != format('refs/heads/{0}', github.event.repository.default_branch)
+        run: |
+          echo "Releases must be run from the default branch." >&2
+          exit 1
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - name: Read crate version
+        id: version
+        run: |
+          version="$(cargo +stable metadata --locked --no-deps --format-version 1 \
+            | python3 -c 'import json,sys; print(next(p["version"] for p in json.load(sys.stdin)["packages"] if p["name"] == "who"))')"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.+-]+)?$ ]]; then
+            echo "Invalid version: $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Ensure tag does not already exist
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git ls-remote --exit-code --tags "https://github.com/${GITHUB_REPOSITORY}.git" "refs/tags/v${VERSION}" \
+            && { echo "Tag v${VERSION} already exists." >&2; exit 1; } || true
+      - name: Ensure version is not already on crates.io
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          status="$(curl -s -o /dev/null -w '%{http_code}' -A "${GITHUB_REPOSITORY} release workflow" "https://crates.io/api/v1/crates/who/${VERSION}")"
+          if [ "$status" = "200" ]; then
+            echo "who ${VERSION} is already published." >&2
+            exit 1
+          fi
+
+  quality:
+    name: Quality
+    needs: validate
+    uses: ./.github/workflows/quality.yml
+
+  tests:
+    name: Tests
+    needs: validate
+    uses: ./.github/workflows/test.yml
+    with:
+      runner: ubuntu-latest
+
+  publish:
+    name: Publish to crates.io and create release
+    needs: [validate, quality, tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.validate.outputs.version }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Install Rust
+        run: rustup toolchain install stable --profile minimal --no-self-update
+      - name: Dry-run publish
+        run: cargo +stable publish --locked --dry-run
+      - name: Publish to crates.io
+        if: ${{ !inputs.dry_run }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo +stable publish --locked
+      - name: Create tag and GitHub release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${VERSION}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "v${VERSION}" \
+            --generate-notes
