@@ -13,7 +13,7 @@ They support direct and transitive dependencies, renamed packages, registry sour
 | Comparison | Triggers when |
 | --- | --- |
 | `dependency("foo").changed_from("1.2.3")` | The resolved version is not `1.2.3` |
-| `dependency("foo").matches(">=2")` | The resolved version matches the requirement |
+| `dependency("foo").compare(">=2")` | The resolved version matches the requirement |
 
 The comparison requests human review rather than proving that dependency behavior changed.
 If more than one reachable package named `foo` exists, `who` reports ambiguity instead of choosing one.
@@ -29,14 +29,30 @@ Its comparisons use the same version rules as dependency predicates.
 | Comparison | Triggers when |
 | --- | --- |
 | `rustc().changed_from("1.95.0")` | The compiler version differs from `1.95.0` |
-| `rustc().matches(">=1.96")` | The compiler version matches the requirement |
+| `rustc().compare(">=1.96")` | The compiler version matches the requirement |
+
+## msrv
+
+`msrv()` selects the calling package's minimum supported Rust version from `[package] rust-version`.
+It takes no arguments and supports `rust-version.workspace = true` inheritance from `[workspace.package]`.
+It does not select the running compiler version.
+
+| Comparison | Triggers when |
+| --- | --- |
+| `msrv().changed_from("1.74.0")` | The declared minimum version differs from `1.74.0` |
+| `msrv().compare(">=1.80")` | The declared minimum version matches the requirement |
+
+Cargo declarations such as `"1.74"` become `1.74.0` for comparison.
+A missing declaration causes a compilation error.
+Manifest changes trigger another compilation of the calling crate.
 
 ## Version rules
 
 Exact versions must include major, minor, and patch numbers.
 Semver requirements use the [`semver`](https://docs.rs/semver) crate's syntax.
-`matches` triggers when the requirement matches.
+`compare` triggers when the version satisfies the requirement.
 Use `!` to trigger outside an allowed range.
+Replace existing `.matches(...)` calls with `.compare(...)`.
 
 ```text
 >=2
@@ -82,8 +98,8 @@ Both operands are evaluated, so invalid predicates still produce errors even whe
 
 ```rust
 who::error!(
-    !dependency("foo").matches(">=1.8, <2")
-        || rustc().matches("<1.95"),
+    !dependency("foo").compare(">=1.8, <2")
+        || rustc().compare("<1.95"),
     "Recheck this dependency/compiler combination"
 );
 ```

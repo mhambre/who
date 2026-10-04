@@ -1,7 +1,7 @@
 error: invalid semver requirement: unexpected character 'b' while parsing major version number
  --> tests/ui/fail/invalid_semver.rs:2:46
   |
-2 |     who::error!(dependency("semver").matches("banana"), "bad requirement");
+2 |     who::error!(dependency("semver").compare("banana"), "bad requirement");
   |                                              ^^^^^^^^
 
 error: invalid exact version: unexpected end of input while parsing minor version number

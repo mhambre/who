@@ -71,7 +71,7 @@ mod tests {
     #[test]
     fn precedence() {
         let guard: Guard = syn::parse_str(
-            "rustc().matches(\"*\") || !rustc().matches(\"*\") && (rustc().matches(\"*\")), \"reason\",",
+            "rustc().compare(\"*\") || !rustc().compare(\"*\") && (rustc().compare(\"*\")), \"reason\",",
         )
         .unwrap();
         assert!(matches!(guard.condition, Expr::Or(_, right) if matches!(*right, Expr::And(_, _))));
@@ -82,11 +82,26 @@ mod tests {
         for text in [
             "true, \"reason\"",
             "cfg!(unix), \"reason\"",
-            "rustc(\"x\").matches(\"*\"), \"r\"",
-            "rustc().matches(\"*\", \"x\"), \"r\"",
-            "rustc().matches(\"*\"), \"r\", false",
+            "rustc(\"x\").compare(\"*\"), \"r\"",
+            "rustc().compare(\"*\", \"x\"), \"r\"",
+            "rustc().compare(\"*\"), \"r\", false",
+            "msrv(\"x\").compare(\"*\"), \"r\"",
+            "msrv().compare(\"*\", \"x\"), \"r\"",
+            "msrv().changed_from(\"1.74\"), \"r\"",
         ] {
             assert!(syn::parse_str::<Guard>(text).is_err(), "{text}");
+        }
+    }
+
+    #[test]
+    fn version_fields_share_comparisons() {
+        for field in ["dependency(\"foo\")", "rustc()", "msrv()"] {
+            for requirement in [">=2", ">=1.8, <2", "^1.4", "~1.4", "=1.2.3"] {
+                let text = format!("{field}.compare({requirement:?}), \"reason\"");
+                assert!(syn::parse_str::<Guard>(&text).is_ok(), "{text}");
+            }
+            let legacy = format!("{field}.matches(\"*\"), \"reason\"");
+            assert!(syn::parse_str::<Guard>(&legacy).is_err(), "{legacy}");
         }
     }
 }

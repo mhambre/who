@@ -5,6 +5,7 @@ pub mod date;
 pub mod dependency;
 #[cfg(feature = "file")]
 pub mod file;
+pub mod msrv;
 pub mod rustc;
 mod version;
 
@@ -17,6 +18,7 @@ use crate::eval::{Context, EvalError, PredicateOutcome};
 pub enum Predicate {
     Dependency(dependency::Condition),
     Rustc(rustc::Condition),
+    Msrv(msrv::Condition),
     #[cfg(feature = "file")]
     File(file::Condition),
     #[cfg(feature = "date")]
@@ -29,6 +31,7 @@ pub fn parse(input: ParseStream<'_>) -> Result<(Predicate, Span)> {
     let predicate = match kind.to_string().as_str() {
         "dependency" => Predicate::Dependency(dependency::Condition::parse(input)?),
         "rustc" => Predicate::Rustc(rustc::Condition::parse(input)?),
+        "msrv" => Predicate::Msrv(msrv::Condition::parse(input)?),
         #[cfg(feature = "file")]
         "file" => Predicate::File(file::Condition::parse(input)?),
         #[cfg(feature = "date")]
@@ -42,7 +45,7 @@ pub fn parse(input: ParseStream<'_>) -> Result<(Predicate, Span)> {
             syn::parenthesized!(arguments in input);
             return Err(syn::Error::new(
                 kind.span(),
-                "expected dependency(...), file(...), rustc(), or date()",
+                "expected dependency(...), file(...), rustc(), msrv(), or date()",
             ));
         }
     };
@@ -69,6 +72,7 @@ impl Predicate {
         match self {
             Self::Dependency(condition) => condition.evaluate(context),
             Self::Rustc(condition) => condition.evaluate(context),
+            Self::Msrv(condition) => condition.evaluate(context),
             #[cfg(feature = "file")]
             Self::File(condition) => condition.evaluate(context),
             #[cfg(feature = "date")]

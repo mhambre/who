@@ -13,7 +13,7 @@ fn main() {
     who::error!(!date().after("2000-01-01 12:30 UTC"), "explicit UTC date and time");
     who::error!(
         !(date().after("2000-01-01T08:00:00-04:00") && !date().after("9999-01-01"))
-            || (date().after("9999-01-01") && dependency("semver").matches("<1")),
+            || (date().after("9999-01-01") && dependency("semver").compare("<1")),
         "date predicates compose with boolean operators and dependency predicates"
     );
 }

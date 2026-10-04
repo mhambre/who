@@ -4,5 +4,5 @@ error: who: dependency `syn` resolves to multiple packages:
        The condition is ambiguous; optional, target, build, and dev dependencies are included.
  --> tests/ui/fail/ambiguous_dependency.rs:2:17
   |
-2 |     who::error!(dependency("syn").matches("*"), "multiple resolved versions");
+2 |     who::error!(dependency("syn").compare("*"), "multiple resolved versions");
   |                 ^^^^^^^^^^

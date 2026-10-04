@@ -60,7 +60,7 @@ Or when you know the release boundary:
 
 ```rust
 who::warn!(
-    dependency("foo").matches(">=2.4"),
+    dependency("foo").compare(">=2.4"),
     "Check foo#481 and remove this compatibility path if the fix has landed"
 );
 

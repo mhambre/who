@@ -5,7 +5,7 @@ use crate::eval::PredicateOutcome;
 
 pub enum VersionRule {
     ChangedFrom(Version),
-    Matches(VersionReq),
+    Compare(VersionReq),
 }
 
 impl VersionRule {
@@ -17,8 +17,8 @@ impl VersionRule {
                 .map_err(|error| {
                     syn::Error::new(literal.span(), format!("invalid exact version: {error}"))
                 }),
-            "matches" => VersionReq::parse(&literal.value())
-                .map(Self::Matches)
+            "compare" => VersionReq::parse(&literal.value())
+                .map(Self::Compare)
                 .map_err(|error| {
                     syn::Error::new(
                         literal.span(),
@@ -33,7 +33,7 @@ impl VersionRule {
     pub fn evaluate(&self, name: &str, resolved: Version) -> PredicateOutcome {
         let (value, expected) = match self {
             Self::ChangedFrom(version) => (resolved != *version, format!("{name} {version}")),
-            Self::Matches(requirement) => (
+            Self::Compare(requirement) => (
                 requirement.matches(&resolved),
                 format!("{name} matches {requirement}"),
             ),
@@ -56,7 +56,7 @@ mod tests {
         let exact = VersionRule::ChangedFrom(version.clone());
         assert!(!exact.evaluate("foo", version.clone()).value);
         assert!(exact.evaluate("foo", Version::new(1, 2, 4)).value);
-        let range = VersionRule::Matches(VersionReq::parse(">=1, <2").unwrap());
+        let range = VersionRule::Compare(VersionReq::parse(">=1, <2").unwrap());
         assert!(range.evaluate("foo", version).value);
         assert!(!range.evaluate("foo", Version::new(2, 0, 0)).value);
     }

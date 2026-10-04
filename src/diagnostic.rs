@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn inactive_expansion_has_no_metadata() {
-        let guard = syn::parse_str("rustc().matches(\"<1\"), \"SECRET_REASON\"").unwrap();
+        let guard = syn::parse_str("rustc().compare(\"<1\"), \"SECRET_REASON\"").unwrap();
         let tokens = expand(
             &guard,
             Outcome {

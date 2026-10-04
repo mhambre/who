@@ -1,3 +1,3 @@
 fn main() {
-    who::warn!(rustc().matches("<1") && dependency("who-nonexistent-package").matches("*"), "validate both operands");
+    who::warn!(rustc().compare("<1") && dependency("who-nonexistent-package").compare("*"), "validate both operands");
 }
