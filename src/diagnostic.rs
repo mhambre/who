@@ -3,14 +3,15 @@ use std::path::PathBuf;
 use proc_macro2::TokenStream;
 use quote::{quote, quote_spanned};
 
+use crate::dsl::Guard;
 use crate::eval::Outcome;
-use crate::parse::Guard;
 
 pub enum Severity {
     Warning,
     Error,
 }
 
+/// Emit tracked inputs and diagnostics inside a compile-time-only constant.
 pub fn expand<'a>(
     guard: &Guard,
     outcome: Outcome,
@@ -24,11 +25,7 @@ pub fn expand<'a>(
         quote! { let _ = ::core::include_bytes!(#path); }
     });
     let diagnostic = if outcome.value {
-        let message = format!(
-            "who assumption requires revalidation\n{}\nreason: {}",
-            outcome.details.join("\n"),
-            guard.message.value()
-        );
+        let message = format_message(guard, &outcome);
         match severity {
             Severity::Error => quote_spanned! {span=> ::core::compile_error!(#message); },
             Severity::Warning => quote_spanned! {span=>
@@ -48,6 +45,25 @@ pub fn expand<'a>(
     }
 }
 
+/// Render leaf evidence in source order without altering its truth values.
+fn format_message(guard: &Guard, outcome: &Outcome) -> String {
+    let details = outcome
+        .evidence
+        .iter()
+        .map(|evidence| {
+            format!(
+                "expected: {}\nresolved: {}\npredicate: {}",
+                evidence.expected, evidence.resolved, evidence.value,
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!(
+        "who assumption requires revalidation\n{details}\nreason: {}",
+        guard.message.value()
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -59,7 +75,11 @@ mod tests {
             &guard,
             Outcome {
                 value: false,
-                details: vec!["SECRET_DETAIL".into()],
+                evidence: vec![crate::eval::PredicateOutcome {
+                    value: false,
+                    expected: "SECRET_DETAIL".into(),
+                    resolved: "SECRET_DETAIL".into(),
+                }],
             },
             std::iter::empty(),
             Severity::Warning,

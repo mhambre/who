@@ -3,6 +3,7 @@ use std::process::Command;
 
 use semver::Version;
 
+/// Query the compiler selected by Cargo, falling back to rustc on PATH.
 pub fn version() -> Result<Version, String> {
     let compiler = env::var_os("RUSTC").unwrap_or_else(|| "rustc".into());
     let output = Command::new(compiler)
@@ -18,6 +19,7 @@ pub fn version() -> Result<Version, String> {
     parse_version(&String::from_utf8_lossy(&output.stdout))
 }
 
+/// Preserve prerelease identifiers while discarding rustc's build metadata.
 fn parse_version(output: &str) -> Result<Version, String> {
     let mut words = output.split_whitespace();
     if words.next() != Some("rustc") {

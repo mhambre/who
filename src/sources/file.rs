@@ -3,6 +3,7 @@ use std::path::Path;
 
 use sha2::{Digest, Sha256};
 
+/// Hash raw file bytes without text conversion.
 pub fn hash(path: &Path) -> Result<String, String> {
     let bytes = fs::read(path)
         .map_err(|error| format!("who: cannot read file `{}`: {error}", path.display()))?;
