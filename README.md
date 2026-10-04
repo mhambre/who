@@ -186,6 +186,8 @@ The checks run during compilation and do not add runtime branches, strings, help
 
 ## Development
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for prerequisites, validation commands, and guidance on extending the DSL.
+
 Run the test suite with:
 
 ```bash
