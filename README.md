@@ -1,6 +1,9 @@
 # who
 
+[![Crates.io](https://img.shields.io/crates/v/who.svg)](https://crates.io/crates/who)
+[![CI](https://github.com/mhambre/who/actions/workflows/ci.yml/badge.svg)](https://github.com/mhambre/who/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/mhambre/who/actions/workflows/codeql.yml/badge.svg)](https://github.com/mhambre/who/actions/workflows/codeql.yml)
+![Supported operating systems](https://img.shields.io/badge/OS-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey)
 
 `who` lets you replace TODO comments that would otherwise get lost to the abyss with compile-time review triggers for code whose correctness, performance, or necessity depends on external context the compiler cannot verify, such as dependency behavior, file contents, or the compiler version.
 
@@ -134,6 +137,8 @@ When the condition is false, the macro leaves no runtime behavior behind.
 `who` can be used inside functions or at module scope.
 
 See the [DSL reference](docs/dsl.md) for fields, comparison methods, and boolean expressions.
+
+See the [changelog](CHANGELOG.md) for release history.
 
 ### Warnings
 
