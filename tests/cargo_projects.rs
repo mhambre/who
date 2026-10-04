@@ -93,7 +93,7 @@ alias = {{ package = "demo", path = "demo" }}
     write(root, "demo-old/src/lib.rs", "");
     write(root, "bridge/Cargo.toml", "[package]\nname='bridge'\nversion='0.1.0'\nedition='2021'\n[dependencies]\nold={package='demo',path='../demo-old'}\n");
     write(root, "bridge/src/lib.rs", "");
-    let app_manifest = format!("[package]\nname='review-app'\nversion='0.1.0'\nedition='2021'\n[dependencies]\n{}\nalias={{package='demo',path='../demo'}}\n", macro_dependency());
+    let app_manifest = format!("[package]\nname='review-app'\nversion='0.1.0'\nedition='2021'\nrust-version='1.74'\n[dependencies]\n{}\nalias={{package='demo',path='../demo'}}\n", macro_dependency());
     write(root, "app/Cargo.toml", &app_manifest);
     write(root, "app/schema.proto", "");
     let date_guards = if cfg!(feature = "date") {
@@ -106,9 +106,12 @@ alias = {{ package = "demo", path = "demo" }}
         r#"
 fn main() {{
     guards::warn!(dependency("demo").changed_from("1.2.3"), "UNIQUE_DEP_REASON");
-    guards::warn!(dependency("demo").matches("^1.2"), "UNIQUE_ACTIVE_REASON");
+    guards::warn!(dependency("demo").compare("^1.2"), "UNIQUE_ACTIVE_REASON");
     guards::warn!(file("schema.proto").changed_from("{EMPTY_HASH}"), "UNIQUE_FILE_REASON");
-    guards::warn!(!rustc().matches(">=1"), "UNIQUE_RUSTC_REASON");
+    guards::warn!(!rustc().compare(">=1"), "UNIQUE_RUSTC_REASON");
+    guards::warn!(msrv().compare(">=1.74"), "UNIQUE_MSRV_REASON");
+    guards::error!(msrv().changed_from("1.74.0"), "UNIQUE_MSRV_BASELINE_REASON");
+    guards::error!(rustc().matches("<1"), "UNIQUE_LEGACY_REASON");
     {date_guards}
     println!("{{}}", alias::VALUE);
 }}
@@ -146,7 +149,14 @@ fn main() {{
     succeeds(cargo(root, &["build", "-p", "review-app"]));
     let executable_name = format!("review-app{}", std::env::consts::EXE_SUFFIX);
     let default_debug = fs::read(root.join("target/debug").join(&executable_name)).unwrap();
-    for forbidden in ["UNIQUE_", "WHO_ASSUMPTION", "sha256:", "schema.proto"] {
+    for forbidden in [
+        "UNIQUE_",
+        "WHO_ASSUMPTION",
+        "WHO_MATCHES",
+        ".matches(...)",
+        "sha256:",
+        "schema.proto",
+    ] {
         assert!(
             !default_debug
                 .windows(forbidden.len())
@@ -259,7 +269,7 @@ fn main() {{
     write(
         root,
         "app/src/main.rs",
-        "fn main() { guards::warn!(dependency(\"demo\").matches(\"*\"), \"ambiguous\"); }",
+        "fn main() { guards::warn!(dependency(\"demo\").compare(\"*\"), \"ambiguous\"); }",
     );
     let output = cargo(root, &["check", "-p", "review-app"]);
     let stderr = String::from_utf8_lossy(&output.stderr);

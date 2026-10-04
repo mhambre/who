@@ -1,5 +1,5 @@
 error: who: dependency `who-nonexistent-package` is not in the caller's resolved lockfile graph (use the Cargo package name, not an alias)
  --> tests/ui/fail/missing_dependency.rs:2:16
   |
-2 |     who::warn!(dependency("who-nonexistent-package").matches("*"), "missing package");
+2 |     who::warn!(dependency("who-nonexistent-package").compare("*"), "missing package");
   |                ^^^^^^^^^^

@@ -1,5 +1,5 @@
 error: who: dependency `who-nonexistent-package` is not in the caller's resolved lockfile graph (use the Cargo package name, not an alias)
  --> tests/ui/fail/no_short_circuit.rs:2:41
   |
-2 |     who::warn!(rustc().matches("<1") && dependency("who-nonexistent-package").matches("*"), "validate both operands");
+2 |     who::warn!(rustc().compare("<1") && dependency("who-nonexistent-package").compare("*"), "validate both operands");
   |                                         ^^^^^^^^^^

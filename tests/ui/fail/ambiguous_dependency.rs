@@ -1,3 +1,3 @@
 fn main() {
-    who::error!(dependency("syn").matches("*"), "multiple resolved versions");
+    who::error!(dependency("syn").compare("*"), "multiple resolved versions");
 }

@@ -6,12 +6,13 @@ use proc_macro2::Span;
 use semver::Version;
 
 use super::EvalError;
-use crate::sources::{dependency, rustc};
+use crate::sources::{dependency, msrv, rustc};
 
 pub struct Context {
     manifest_dir: PathBuf,
     graph: Option<dependency::Graph>,
     compiler: Option<Version>,
+    msrv: Option<Version>,
     #[cfg(feature = "date")]
     now: Option<chrono::DateTime<chrono::Utc>>,
     tracked: BTreeSet<PathBuf>,
@@ -31,13 +32,14 @@ impl Context {
             manifest_dir,
             graph: None,
             compiler: None,
+            msrv: None,
             #[cfg(feature = "date")]
             now: None,
             tracked: BTreeSet::new(),
         }
     }
 
-    /// Expose all successful file and dependency reads for expansion tracking.
+    /// Expose consulted files and manifests for expansion tracking.
     pub fn tracked_paths(&self) -> impl Iterator<Item = &PathBuf> {
         self.tracked.iter()
     }
@@ -64,6 +66,16 @@ impl Context {
         Ok(self.compiler.as_ref().unwrap().clone())
     }
 
+    /// Read the declared minimum compiler version once per invocation.
+    pub fn msrv(&mut self) -> Result<Version, EvalError> {
+        if self.msrv.is_none() {
+            let (version, paths) = msrv::load(&self.manifest_dir)?;
+            self.msrv = Some(version);
+            self.tracked.extend(paths);
+        }
+        Ok(self.msrv.as_ref().unwrap().clone())
+    }
+
     /// Resolve paths against the caller and track successfully hashed files.
     #[cfg(feature = "file")]
     pub fn file_hash(&mut self, path: &std::path::Path) -> Result<String, EvalError> {
@@ -86,11 +98,25 @@ mod tests {
     use crate::dsl::Guard;
 
     #[test]
+    fn msrv_is_cached_and_its_manifest_is_tracked() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("Cargo.toml");
+        std::fs::write(&path, "[package]\nrust-version='1.74'\n").unwrap();
+        let mut context = Context::new(directory.path().to_path_buf());
+        assert_eq!(context.msrv().unwrap(), Version::new(1, 74, 0));
+        std::fs::write(&path, "[package]\nrust-version='1.80'\n").unwrap();
+        assert_eq!(context.msrv().unwrap(), Version::new(1, 74, 0));
+        assert_eq!(context.tracked_paths().collect::<Vec<_>>(), vec![&path]);
+        let mut next = Context::new(directory.path().to_path_buf());
+        assert_eq!(next.msrv().unwrap(), Version::new(1, 80, 0));
+    }
+
+    #[test]
     fn boolean_evaluation_keeps_leaf_evidence_in_source_order() {
         let mut context = Context::new(PathBuf::new());
         context.compiler = Some(Version::new(1, 95, 0));
         let guard: Guard = syn::parse_str(
-            "!(rustc().matches(\"<1\") || rustc().changed_from(\"1.95.0\")) && rustc().matches(\">=1\"), \"reason\"",
+            "!(rustc().compare(\"<1\") || rustc().changed_from(\"1.95.0\")) && rustc().compare(\">=1\"), \"reason\"",
         ).unwrap();
         let outcome = crate::eval::evaluate(&guard.condition, &mut context).unwrap();
         assert!(outcome.value);

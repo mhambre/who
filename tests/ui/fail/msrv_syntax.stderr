@@ -1,0 +1,23 @@
+error: unexpected predicate argument
+ --> tests/ui/fail/msrv_syntax.rs:2:22
+  |
+2 |     who::error!(msrv("caller").compare(">=1"), "no receiver arguments");
+  |                      ^^^^^^^^
+
+error: invalid semver requirement: unexpected character 'b' while parsing major version number
+ --> tests/ui/fail/msrv_syntax.rs:3:32
+  |
+3 |     who::error!(msrv().compare("banana"), "bad requirement");
+  |                                ^^^^^^^^
+
+error: invalid exact version: unexpected end of input while parsing minor version number
+ --> tests/ui/fail/msrv_syntax.rs:4:37
+  |
+4 |     who::error!(msrv().changed_from("1.74"), "bad exact version");
+  |                                     ^^^^^^
+
+error: unsupported predicate method
+ --> tests/ui/fail/msrv_syntax.rs:5:24
+  |
+5 |     who::error!(msrv().after("1.74.0"), "unsupported method");
+  |                        ^^^^^

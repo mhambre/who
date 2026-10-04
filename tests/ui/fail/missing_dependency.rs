@@ -1,3 +1,3 @@
 fn main() {
-    who::warn!(dependency("who-nonexistent-package").matches("*"), "missing package");
+    who::warn!(dependency("who-nonexistent-package").compare("*"), "missing package");
 }

@@ -5,7 +5,6 @@ use crate::dsl::arguments;
 use crate::eval::{Context, EvalError, PredicateOutcome};
 
 pub struct Condition {
-    name: String,
     rule: VersionRule,
 }
 
@@ -15,20 +14,17 @@ impl Condition {
         self.rule.deprecated_method()
     }
 
-    /// Parse a Cargo package name and its version rule without reading Cargo state.
+    /// Parse a version rule after an empty msrv() receiver.
     pub fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        let name = arguments::named(input)?.value();
+        arguments::empty(input)?;
         let (method, literal) = arguments::method(input)?;
         Ok(Self {
-            name,
             rule: VersionRule::parse(&method, &literal)?,
         })
     }
 
-    /// Resolve an unambiguous package through the invocation's cached graph.
+    /// Compare against the caller's declared minimum compiler version.
     pub fn evaluate(&self, context: &mut Context) -> Result<PredicateOutcome, EvalError> {
-        Ok(self
-            .rule
-            .evaluate(&self.name, context.dependency(&self.name)?))
+        Ok(self.rule.evaluate("msrv", context.msrv()?))
     }
 }

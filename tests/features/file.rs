@@ -14,7 +14,7 @@ fn consumer_can_disable_and_enable_file_support() {
     let root = project.root();
     let check = || project.check();
 
-    fs::write(root.join("src/main.rs"), "fn main() { who::error!(!rustc().matches(\">=1\"), \"compiler condition remains available\"); }").unwrap();
+    fs::write(root.join("src/main.rs"), "fn main() { who::error!(!rustc().compare(\">=1\"), \"compiler condition remains available\"); }").unwrap();
     let output = check();
     assert!(
         output.status.success(),
