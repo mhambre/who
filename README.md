@@ -180,8 +180,6 @@ The checks run during compilation and do not add runtime branches, strings, help
 
 ## Development
 
-See [Extending the DSL](docs/extending-dsl.md) for module boundaries and the steps to add a predicate.
-
 Run the test suite with:
 
 ```bash
