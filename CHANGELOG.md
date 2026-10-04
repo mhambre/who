@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] - 2026-10-04
+
+### Added
+
+- `msrv()` predicates to review changes to the calling package's declared minimum supported Rust version.
+
+### Changed
+
+- Deprecated `.matches(...)` in favor of `.compare(...)` for version requirement predicates.
+
 ## [0.2.0] - 2026-10-03
 
 ### Added
