@@ -1,4 +1,6 @@
-use std::{fs, process::Command};
+use std::fs;
+
+use crate::support::cargo_project::CargoProject;
 
 #[cfg(not(feature = "file"))]
 #[test]
@@ -8,24 +10,9 @@ fn disabled_file_diagnostic() {
 
 #[test]
 fn consumer_can_disable_and_enable_file_support() {
-    let directory = tempfile::tempdir().unwrap();
-    let root = directory.path();
-    fs::create_dir(root.join("src")).unwrap();
-    let manifest = format!(
-        "[package]\nname='file-feature-test'\nversion='0.1.0'\nedition='2021'\n[workspace]\n[dependencies]\nwho={{path={:?},default-features=false}}\n",
-        env!("CARGO_MANIFEST_DIR"),
-    );
-    fs::write(root.join("Cargo.toml"), &manifest).unwrap();
-    let check = || {
-        Command::new(env!("CARGO"))
-            .args(["check", "--offline"])
-            .current_dir(root)
-            .env("CARGO_TARGET_DIR", root.join("target"))
-            .env_remove("RUSTFLAGS")
-            .env_remove("CARGO_ENCODED_RUSTFLAGS")
-            .output()
-            .unwrap()
-    };
+    let project = CargoProject::new("file-feature-test");
+    let root = project.root();
+    let check = || project.check();
 
     fs::write(root.join("src/main.rs"), "fn main() { who::error!(!rustc().matches(\">=1\"), \"compiler condition remains available\"); }").unwrap();
     let output = check();
@@ -46,14 +33,7 @@ fn consumer_can_disable_and_enable_file_support() {
     assert!(String::from_utf8_lossy(&output.stderr)
         .contains("file predicates require the `file` feature"));
 
-    fs::write(
-        root.join("Cargo.toml"),
-        manifest.replace(
-            "default-features=false",
-            "default-features=false,features=['file']",
-        ),
-    )
-    .unwrap();
+    project.features(&["file"]);
     let output = check();
     assert!(
         output.status.success(),

@@ -24,11 +24,10 @@
 //!
 //! When the compiler version changes, `who` brings this code back to your attention so the workaround does not silently become permanent.
 
-mod ast;
-mod conditions;
 mod diagnostic;
+mod dsl;
 mod eval;
-mod parse;
+mod sources;
 
 use proc_macro::TokenStream;
 
@@ -44,10 +43,11 @@ pub fn error(input: TokenStream) -> TokenStream {
     expand(input, diagnostic::Severity::Error)
 }
 
+/// Parse, evaluate, and expand a guard without emitting runtime machinery.
 fn expand(input: TokenStream, severity: diagnostic::Severity) -> TokenStream {
-    let result = syn::parse::<parse::Guard>(input).and_then(|guard| {
+    let result = syn::parse::<dsl::Guard>(input).and_then(|guard| {
         let mut context = eval::Context::from_env(guard.span)?;
-        let outcome = context.evaluate(&guard.condition)?;
+        let outcome = eval::evaluate(&guard.condition, &mut context)?;
         Ok(diagnostic::expand(
             &guard,
             outcome,
