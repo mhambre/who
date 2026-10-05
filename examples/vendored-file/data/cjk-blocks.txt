@@ -1,0 +1,10 @@
+# Excerpt of Unicode 15.0 Blocks.txt (https://www.unicode.org/Public/15.0.0/ucd/Blocks.txt)
+# Vendored verbatim; src/main.rs hand-copies these ranges into a lookup table.
+4E00..9FFF; CJK Unified Ideographs
+3400..4DBF; CJK Unified Ideographs Extension A
+20000..2A6DF; CJK Unified Ideographs Extension B
+2A700..2B739; CJK Unified Ideographs Extension C
+2B740..2B81D; CJK Unified Ideographs Extension D
+2B820..2CEA1; CJK Unified Ideographs Extension E
+2CEB0..2EBE0; CJK Unified Ideographs Extension F
+30000..3134A; CJK Unified Ideographs Extension G
