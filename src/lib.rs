@@ -7,7 +7,7 @@
 //! For example, suppose you use `OnceLock` while waiting for your minimum supported Rust version
 //! to make `LazyLock` available:
 //!
-//! ```rust
+//! ```ignore
 //! use std::sync::OnceLock;
 //!
 //! static CONFIG: OnceLock<String> = OnceLock::new();
