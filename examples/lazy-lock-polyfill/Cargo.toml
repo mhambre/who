@@ -1,0 +1,8 @@
+[package]
+name = "lazy-lock-polyfill"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+
+[dependencies]
+who = { path = "../..", default-features = false }

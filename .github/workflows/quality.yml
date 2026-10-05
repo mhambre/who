@@ -51,3 +51,4 @@ jobs:
           cargo +1.74.0 check --lib --locked
           cargo +1.74.0 check --lib --locked --no-default-features
           cargo +1.74.0 check --lib --locked --all-features
+          cargo +1.74.0 check --manifest-path examples/lazy-lock-polyfill/Cargo.toml --locked
