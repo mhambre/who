@@ -35,6 +35,8 @@ cargo +stable clippy --all-targets --locked --no-default-features --features <fe
 cargo +stable test --locked --no-default-features --features <feature>
 ```
 
+`scripts/ci.sh <check|clippy|test|examples|msrv>` runs the same tasks as CI sequentially across all features, each feature alone, and no features. Features are read from `Cargo.toml` and examples from `examples/*/`, so new ones need no CI edits.
+
 Keep `Cargo.lock` in sync when changing dependencies or package versions; CI uses `--locked`.
 
 ## DSL and predicates

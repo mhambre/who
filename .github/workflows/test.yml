@@ -29,21 +29,7 @@ jobs:
           key: tests-${{ inputs.runner }}
       - name: Fetch dependencies for offline test fixtures
         run: cargo +stable fetch --locked
-      - name: Test dependency workaround example
-        run: cargo +stable test --locked --manifest-path examples/image-size-limit/Cargo.toml
-      - name: Test with default features
-        run: cargo +stable test --locked
-      - name: Test without default features
-        run: cargo +stable test --locked --no-default-features
-      - name: Test with date support only
-        run: cargo +stable test --locked --no-default-features --features date
-      - name: Test with file support only
-        run: cargo +stable test --locked --no-default-features --features file
-      - name: Test with path support only
-        run: cargo +stable test --locked --no-default-features --features path
-      - name: Test with all features
-        run: cargo +stable test --locked --all-features
-      - name: Test std API polyfill example
-        run: cargo +stable test --manifest-path examples/lazy-lock-polyfill/Cargo.toml --locked
-      - name: Build vendored file example
-        run: cargo +stable run --locked --manifest-path examples/vendored-file/Cargo.toml
+      - name: Test feature configurations
+        run: scripts/ci.sh test
+      - name: Test examples
+        run: scripts/ci.sh examples
