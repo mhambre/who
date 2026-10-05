@@ -39,8 +39,13 @@ fn fails(output: Output, expected: &str) {
 
 fn macro_dependency() -> String {
     format!(
-        "guards = {{ package = 'who', path = {:?} }}",
-        env!("CARGO_MANIFEST_DIR")
+        "guards = {{ package = 'who', path = {:?}, features = {:?} }}",
+        env!("CARGO_MANIFEST_DIR"),
+        if cfg!(feature = "path") {
+            vec!["path"]
+        } else {
+            vec![]
+        }
     )
 }
 
@@ -102,6 +107,12 @@ alias = {{ package = "demo", path = "demo" }}
     } else {
         ""
     };
+    let path_guards = if cfg!(feature = "path") {
+        r#"guards::warn!(path(core::mem::size_of).exists(), "UNIQUE_PATH_REASON");
+    guards::error!(path(core::who_definitely_missing).exists(), "UNIQUE_MISSING_PATH_REASON");"#
+    } else {
+        ""
+    };
     let guard_source = format!(
         r#"
 fn main() {{
@@ -113,6 +124,7 @@ fn main() {{
     guards::error!(msrv().changed_from("1.74.0"), "UNIQUE_MSRV_BASELINE_REASON");
     guards::error!(rustc().matches("<1"), "UNIQUE_LEGACY_REASON");
     {date_guards}
+    {path_guards}
     println!("{{}}", alias::VALUE);
 }}
 "#

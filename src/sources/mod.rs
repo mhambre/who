@@ -5,4 +5,6 @@ pub mod dependency;
 pub mod file;
 mod manifest;
 pub mod msrv;
+#[cfg(feature = "path")]
+pub mod path;
 pub mod rustc;

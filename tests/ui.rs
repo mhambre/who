@@ -9,6 +9,7 @@ fn compile_time_guards() {
             .filter(|path| {
                 let name = path.file_name().unwrap().to_str().unwrap();
                 (cfg!(feature = "date") || !name.starts_with("date_"))
+                    && (cfg!(feature = "path") || !name.starts_with("path_"))
                     && (cfg!(feature = "file")
                         || !(name.starts_with("file_") || name == "invalid_hash.rs"))
             })
