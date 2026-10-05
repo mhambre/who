@@ -41,5 +41,7 @@ jobs:
         run: cargo +stable test --locked --no-default-features --features path
       - name: Test with all features
         run: cargo +stable test --locked --all-features
+      - name: Test std API polyfill example
+        run: cargo +stable test --manifest-path examples/lazy-lock-polyfill/Cargo.toml --locked
       - name: Build vendored file example
         run: cargo +stable run --locked --manifest-path examples/vendored-file/Cargo.toml
