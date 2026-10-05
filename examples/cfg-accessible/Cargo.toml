@@ -1,0 +1,12 @@
+[package]
+name = "cfg-accessible-example"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.74"
+publish = false
+
+[features]
+nightly-cfg-accessible = []
+
+[dependencies]
+who = { path = "../..", default-features = false, features = ["path"] }

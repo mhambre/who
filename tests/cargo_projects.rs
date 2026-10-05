@@ -56,6 +56,23 @@ fn runtime_ir(ir: &str) -> Vec<&str> {
 }
 
 #[test]
+fn cfg_accessible_example_runs_with_locked_dependencies() {
+    let temporary = tempfile::tempdir().unwrap();
+    let manifest = Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/cfg-accessible/Cargo.toml");
+    let manifest = manifest.to_str().unwrap();
+    let output = cargo(
+        temporary.path(),
+        &["run", "--locked", "--manifest-path", manifest],
+    );
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(output.stdout, b"Hello from the compatibility shim\n");
+}
+
+#[test]
 fn workspace_graph_drift_and_zero_runtime_footprint() {
     let temporary = tempfile::tempdir().unwrap();
     let root = temporary.path();
