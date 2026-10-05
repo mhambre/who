@@ -35,7 +35,7 @@
 //! | `file("path")` | `file` | | ✓ | | |
 //! | `date()` | `date` | | | | ✓ |
 //!
-//! The `date` and `file` features are enabled by default; `path` is opt-in.
+//! *All feature-gated DSL fields are enabled by default.*
 //! Conditions can combine with `&&`, `||`, and `!`; parentheses group multiple conditions.
 //! Precedence is `!` > `&&` > `||`.
 //!
