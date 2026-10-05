@@ -11,6 +11,20 @@ Determine **who** should bring you back if their context changes.
 
 ## Examples
 
+### Replace a compatibility shim when an API becomes available
+
+Suppose a compatibility shim can be replaced by a standard-library API as your MSRV advances:
+
+```rust
+who::warn!(
+    path(std::sync::LazyLock).exists(),
+    "Review this OnceLock shim and replace it with std::sync::LazyLock"
+);
+```
+
+The shim can be correct and well tested, but those tests will not tell you when the newer API becomes available.
+The `path` feature brings this code back to your attention when `std::sync::LazyLock` is importable.
+
 ### Revisit an optimization after a compiler bug is fixed
 
 Suppose a rustc or LLVM regression forces you to disable an optimized implementation:
