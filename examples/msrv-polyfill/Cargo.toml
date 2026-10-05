@@ -1,0 +1,12 @@
+[package]
+name = "msrv-polyfill"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.79"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+who = { path = "../..", features = ["path"] }

@@ -41,3 +41,8 @@ jobs:
         run: cargo +stable test --locked --no-default-features --features path
       - name: Test with all features
         run: cargo +stable test --locked --all-features
+      - name: Build and run examples
+        run: |
+          for dir in examples/*/; do
+            cargo +stable run --locked --manifest-path "$dir/Cargo.toml"
+          done

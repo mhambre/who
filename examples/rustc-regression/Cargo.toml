@@ -1,0 +1,10 @@
+[package]
+name = "rustc-regression"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+who = { path = "../.." }

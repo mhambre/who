@@ -1,0 +1,13 @@
+[package]
+name = "dependency-shim"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_cbor = "0.11"
+uuid = { version = "=1.24.1", features = ["serde"] }
+who = { path = "../.." }
