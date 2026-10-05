@@ -4,25 +4,29 @@
 //!
 //! Tests validate behavior. Use `who::warn!` and `who::error!` to bring code back up for review when the context around it changes.
 //!
-//! For example, suppose a compiler bug forces you to disable an optimized implementation:
+//! For example, suppose you use `OnceLock` while waiting for your minimum supported Rust version
+//! to make `LazyLock` available:
 //!
 //! ```rust
-//! # fn scalar_transform(input: &[f32], output: &mut [f32]) { output.copy_from_slice(input); }
-//! fn transform(input: &[f32], output: &mut [f32]) {
+//! use std::sync::OnceLock;
+//!
+//! static CONFIG: OnceLock<String> = OnceLock::new();
+//!
+//! fn config() -> &'static String {
 //!     who::warn!(
-//!         rustc().changed_from("1.95.0"),
-//!         "Recheck rust-lang/rust#123456 and restore the SIMD path if fixed"
+//!         path(std::sync::LazyLock).exists(),
+//!         "Check whether the MSRV now permits replacing OnceLock with LazyLock"
 //!     );
 //!
-//!     // SIMD path disabled because of a compiler codegen bug.
-//!     scalar_transform(input, output);
+//!     CONFIG.get_or_init(|| "config".to_owned())
 //! }
 //! ```
 //!
-//! The scalar path may be completely correct and well tested.
-//! Those tests will still pass after the compiler bug is fixed.
+//! The current compiler's standard library determines whether the path exists. When it does, this
+//! warning prompts you to check whether the project's MSRV has also advanced enough to use it.
 //!
-//! When the compiler version changes, `who` brings this code back to your attention so the workaround does not silently become permanent.
+//! This brings the code back to your attention without relying on tests to fail when the alternative
+//! becomes available.
 //!
 //! ## DSL reference
 //!

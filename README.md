@@ -11,6 +11,27 @@ Determine **who** should bring you back if their context changes.
 
 ## Examples
 
+### Revisit code when an API becomes available
+
+Suppose you use `OnceLock` while waiting for your minimum supported Rust version to make `LazyLock` available:
+
+```rust
+use std::sync::OnceLock;
+
+static CONFIG: OnceLock<String> = OnceLock::new();
+
+fn config() -> &'static String {
+    who::warn!(
+        path(std::sync::LazyLock).exists(),
+        "Check whether the MSRV now permits replacing OnceLock with LazyLock"
+    );
+
+    CONFIG.get_or_init(|| "config".to_owned())
+}
+```
+
+When the current compiler can import `LazyLock`, `who` prompts you to check whether the project's MSRV has also advanced enough to use it.
+
 ### Revisit an optimization after a compiler bug is fixed
 
 Suppose a rustc or LLVM regression forces you to disable an optimized implementation:
