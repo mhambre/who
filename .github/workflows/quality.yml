@@ -53,3 +53,4 @@ jobs:
           cargo +1.74.0 check --lib --locked --all-features
           cargo +1.74.0 check --manifest-path examples/vendored-file/Cargo.toml --locked
           cargo +1.74.0 check --manifest-path examples/image-size-limit/Cargo.toml --locked
+          cargo +1.74.0 check --manifest-path examples/lazy-lock-polyfill/Cargo.toml --locked
