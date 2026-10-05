@@ -23,6 +23,28 @@
 //! Those tests will still pass after the compiler bug is fixed.
 //!
 //! When the compiler version changes, `who` brings this code back to your attention so the workaround does not silently become permanent.
+//!
+//! ## DSL reference
+//!
+//! | Function | Feature | `exists` | `changed_from` | `compare` | `after` |
+//! | --- | --- | :---: | :---: | :---: | :---: |
+//! | `path(std::sync::LazyLock)` | `path` | ✓ | | | |
+//! | `rustc()` | built-in | | ✓ | ✓ | |
+//! | `msrv()` | built-in | | ✓ | ✓ | |
+//! | `dependency("name")` | built-in | | ✓ | ✓ | |
+//! | `file("path")` | `file` | | ✓ | | |
+//! | `date()` | `date` | | | | ✓ |
+//!
+//! *All feature-gated DSL fields are enabled by default.*
+//! Conditions can combine with `&&`, `||`, and `!`; parentheses group multiple conditions.
+//! Precedence is `!` > `&&` > `||`.
+//!
+//! ```rust
+//! who::warn!(
+//!     rustc().changed_from("1.95.0") && !msrv().compare(">=1.74"),
+//!     "Recheck the compiler workaround"
+//! );
+//! ```
 
 mod diagnostic;
 mod dsl;
