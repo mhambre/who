@@ -29,6 +29,8 @@ jobs:
           key: tests-${{ inputs.runner }}
       - name: Fetch dependencies for offline test fixtures
         run: cargo +stable fetch --locked
+      - name: Test dependency workaround example
+        run: cargo +stable test --locked --manifest-path examples/image-size-limit/Cargo.toml
       - name: Test with default features
         run: cargo +stable test --locked
       - name: Test without default features
