@@ -26,15 +26,16 @@
 //!
 //! ## DSL reference
 //!
-//! | Function | `exists` | `changed_from` | `compare` | `after` |
-//! | --- | :---: | :---: | :---: | :---: |
-//! | `path(std::sync::LazyLock)` (feature `path`) | ✓ | | | |
-//! | `rustc()` | | ✓ | ✓ | |
-//! | `msrv()` | | ✓ | ✓ | |
-//! | `dependency("name")` | | ✓ | ✓ | |
-//! | `file("path")` (feature `file`) | | ✓ | | |
-//! | `date()` (feature `date`) | | | | ✓ |
+//! | Function | Feature | `exists` | `changed_from` | `compare` | `after` |
+//! | --- | --- | :---: | :---: | :---: | :---: |
+//! | `path(std::sync::LazyLock)` | `path` | ✓ | | | |
+//! | `rustc()` | built-in | | ✓ | ✓ | |
+//! | `msrv()` | built-in | | ✓ | ✓ | |
+//! | `dependency("name")` | built-in | | ✓ | ✓ | |
+//! | `file("path")` | `file` | | ✓ | | |
+//! | `date()` | `date` | | | | ✓ |
 //!
+//! The `date` and `file` features are enabled by default; `path` is opt-in.
 //! Conditions can combine with `&&`, `||`, and `!`; parentheses group multiple conditions.
 //! Precedence is `!` > `&&` > `||`.
 //!
