@@ -1,0 +1,10 @@
+[package]
+name = "vendored-file-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+who = { path = "../..", default-features = false, features = ["file"] }
+
+[workspace]
