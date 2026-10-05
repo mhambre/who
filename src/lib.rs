@@ -26,12 +26,13 @@
 //!
 //! ## DSL reference
 //!
-//! | Function | `changed_from` | `compare` | `matches` (deprecated) | `after` |
+//! | Function | `exists` | `changed_from` | `compare` | `after` |
 //! | --- | :---: | :---: | :---: | :---: |
-//! | `rustc()` | ✓ | ✓ | ✓ | |
-//! | `msrv()` | ✓ | ✓ | ✓ | |
-//! | `dependency("name")` | ✓ | ✓ | ✓ | |
-//! | `file("path")` (feature `file`) | ✓ | | | |
+//! | `path(std::sync::LazyLock)` (feature `path`) | ✓ | | | |
+//! | `rustc()` | | ✓ | ✓ | |
+//! | `msrv()` | | ✓ | ✓ | |
+//! | `dependency("name")` | | ✓ | ✓ | |
+//! | `file("path")` (feature `file`) | | ✓ | | |
 //! | `date()` (feature `date`) | | | | ✓ |
 //!
 //! Conditions can combine with `&&`, `||`, and `!`; parentheses group multiple conditions.
