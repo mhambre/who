@@ -23,6 +23,26 @@
 //! Those tests will still pass after the compiler bug is fixed.
 //!
 //! When the compiler version changes, `who` brings this code back to your attention so the workaround does not silently become permanent.
+//!
+//! ## DSL reference
+//!
+//! | Function | `changed_from` | `compare` | `matches` (deprecated) | `after` |
+//! | --- | :---: | :---: | :---: | :---: |
+//! | `rustc()` | ✓ | ✓ | ✓ | |
+//! | `msrv()` | ✓ | ✓ | ✓ | |
+//! | `dependency("name")` | ✓ | ✓ | ✓ | |
+//! | `file("path")` (feature `file`) | ✓ | | | |
+//! | `date()` (feature `date`) | | | | ✓ |
+//!
+//! Conditions can combine with `&&`, `||`, and `!`; parentheses group multiple conditions.
+//! Precedence is `!` > `&&` > `||`.
+//!
+//! ```rust
+//! who::warn!(
+//!     rustc().changed_from("1.95.0") && !msrv().compare(">=1.74"),
+//!     "Recheck the compiler workaround"
+//! );
+//! ```
 
 mod diagnostic;
 mod dsl;
