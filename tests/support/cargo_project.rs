@@ -35,8 +35,14 @@ impl CargoProject {
 
     /// Compile offline with a private target directory and no inherited Rust flags.
     pub fn check(&self) -> Output {
+        self.run(&["check"])
+    }
+
+    /// Run a Cargo command with the same isolated environment as checks.
+    pub fn run(&self, arguments: &[&str]) -> Output {
         Command::new(env!("CARGO"))
-            .args(["check", "--offline"])
+            .args(arguments)
+            .arg("--offline")
             .current_dir(self.root())
             .env("CARGO_TARGET_DIR", self.root().join("target"))
             .env_remove("RUSTFLAGS")

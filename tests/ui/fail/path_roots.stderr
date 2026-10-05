@@ -1,0 +1,23 @@
+error: who: path() cannot probe crate/self/super paths. Use a std, core, alloc, or proc_macro path
+ --> tests/ui/fail/path_roots.rs:2:22
+  |
+2 |     who::error!(path(crate::foo::Bar).exists(), "local crate");
+  |                      ^^^^^
+
+error: who: path() cannot probe crate/self/super paths. Use a std, core, alloc, or proc_macro path
+ --> tests/ui/fail/path_roots.rs:3:22
+  |
+3 |     who::error!(path(self::foo::Bar).exists(), "local module");
+  |                      ^^^^
+
+error: who: path() cannot probe crate/self/super paths. Use a std, core, alloc, or proc_macro path
+ --> tests/ui/fail/path_roots.rs:4:22
+  |
+4 |     who::error!(path(super::foo::Bar).exists(), "parent module");
+  |                      ^^^^^
+
+error: who: external-crate path probing is not implemented. Use a std, core, alloc, or proc_macro path
+ --> tests/ui/fail/path_roots.rs:5:22
+  |
+5 |     who::error!(path(semver::Version).exists(), "external crate not implemented");
+  |                      ^^^^^^

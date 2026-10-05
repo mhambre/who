@@ -1,0 +1,5 @@
+error: path predicates require the `path` feature on the `who` dependency
+ --> tests/features/path_disabled.rs:2:16
+  |
+2 |     who::warn!(path(std::sync::LazyLock).exists(), "requires path probing");
+  |                ^^^^

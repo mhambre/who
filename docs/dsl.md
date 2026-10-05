@@ -89,6 +89,24 @@ Date triggers run during compilation.
 Passing a deadline does not trigger a warning until Cargo recompiles the calling crate.
 If a named-zone time is ambiguous or nonexistent during a clock change, use a numeric offset or a valid local time.
 
+## path
+
+`path(std::sync::LazyLock).exists()` requests review when the Rust path resolves to an importable item.
+Enable the `path` feature on `who` to use this field.
+The path is Rust syntax, not a string.
+
+The probe asks the active compiler to compile a public import into metadata only.
+It supports types, traits, functions, modules, constants, and importable macros.
+This release supports only paths rooted in `std`, `core`, `alloc`, or `proc_macro`.
+Dependency paths and `crate`, `self`, and `super` roots produce errors.
+Associated items such as `Vec::new` and `Type::METHOD` are not supported.
+
+Probes use rustc from the active toolchain and preserve the edition, target, sysroot, applicable command-line cfgs, and target features.
+They do not copy attributes from the calling crate, such as nightly `#![feature(...)]` declarations.
+If the compilation context is unavailable or a baseline probe fails, `who` reports an error rather than a missing item.
+Each uncached path launches a compiler process.
+Repeated probes share results only within the same compiler process and compilation context.
+
 ## Boolean expressions
 
 Combine predicates with `!`, `&&`, `||`, and parentheses.
