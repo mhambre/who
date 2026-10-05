@@ -1,0 +1,9 @@
+error: who assumption requires revalidation
+       expected: core::mem::size_of is importable
+       resolved: core::mem::size_of is importable
+       predicate: true
+       reason: remove this workaround
+ --> tests/ui/fail/path_exists.rs:2:17
+  |
+2 |     who::error!(path(core::mem::size_of).exists(), "remove this workaround");
+  |                 ^^^^

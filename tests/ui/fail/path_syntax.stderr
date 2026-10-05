@@ -1,0 +1,35 @@
+error: expected identifier
+ --> tests/ui/fail/path_syntax.rs:2:22
+  |
+2 |     who::error!(path("std::mem").exists(), "not a Rust path");
+  |                      ^^^^^^^^^^
+
+error: unexpected predicate argument
+ --> tests/ui/fail/path_syntax.rs:3:30
+  |
+3 |     who::error!(path(std::mem, core::mem).exists(), "extra receiver argument");
+  |                              ^
+
+error: who: path() requires an import path without generic arguments
+ --> tests/ui/fail/path_syntax.rs:4:32
+  |
+4 |     who::error!(path(std::vec::Vec<u8>).exists(), "generic arguments");
+  |                                ^^^^^^^
+
+error: unexpected predicate argument
+ --> tests/ui/fail/path_syntax.rs:5:39
+  |
+5 |     who::error!(path(std::mem).exists("argument"), "empty method arguments");
+  |                                       ^^^^^^^^^^
+
+error: unsupported predicate method
+ --> tests/ui/fail/path_syntax.rs:6:32
+  |
+6 |     who::error!(path(std::mem).changed_from(), "unsupported method");
+  |                                ^^^^^^^^^^^^
+
+error: unexpected predicate argument
+ --> tests/ui/fail/path_syntax.rs:7:39
+  |
+7 |     who::error!(path(std::mem::size_of()).exists(), "not an expression");
+  |                                       ^

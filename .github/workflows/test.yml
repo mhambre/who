@@ -37,3 +37,7 @@ jobs:
         run: cargo +stable test --locked --no-default-features --features date
       - name: Test with file support only
         run: cargo +stable test --locked --no-default-features --features file
+      - name: Test with path support only
+        run: cargo +stable test --locked --no-default-features --features path
+      - name: Test with all features
+        run: cargo +stable test --locked --all-features

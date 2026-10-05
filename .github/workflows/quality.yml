@@ -34,13 +34,20 @@ jobs:
         run: cargo +stable check --all-targets --locked --no-default-features --features date
       - name: Check with file support only
         run: cargo +stable check --all-targets --locked --no-default-features --features file
+      - name: Check with path support only
+        run: cargo +stable check --all-targets --locked --no-default-features --features path
+      - name: Check with all features
+        run: cargo +stable check --all-targets --locked --all-features
       - name: Lint
         run: |
           cargo +stable clippy --all-targets --locked -- -D warnings
           cargo +stable clippy --all-targets --locked --no-default-features -- -D warnings
           cargo +stable clippy --all-targets --locked --no-default-features --features date -- -D warnings
           cargo +stable clippy --all-targets --locked --no-default-features --features file -- -D warnings
+          cargo +stable clippy --all-targets --locked --no-default-features --features path -- -D warnings
+          cargo +stable clippy --all-targets --locked --all-features -- -D warnings
       - name: Check minimum Rust version
         run: |
           cargo +1.74.0 check --lib --locked
           cargo +1.74.0 check --lib --locked --no-default-features
+          cargo +1.74.0 check --lib --locked --all-features

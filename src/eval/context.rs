@@ -76,6 +76,12 @@ impl Context {
         Ok(self.msrv.as_ref().unwrap().clone())
     }
 
+    /// Reuse sysroot probes cached for the active compiler process.
+    #[cfg(feature = "path")]
+    pub fn path_exists(&mut self, path: &str) -> Result<bool, EvalError> {
+        crate::sources::path::exists(path).map_err(EvalError::from)
+    }
+
     /// Resolve paths against the caller and track successfully hashed files.
     #[cfg(feature = "file")]
     pub fn file_hash(&mut self, path: &std::path::Path) -> Result<String, EvalError> {
