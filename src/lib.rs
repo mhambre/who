@@ -4,25 +4,17 @@
 //!
 //! Tests validate behavior. Use `who::warn!` and `who::error!` to bring code back up for review when the context around it changes.
 //!
-//! For example, suppose a compiler bug forces you to disable an optimized implementation:
+//! For example, suppose a compatibility shim can be replaced by a newer standard-library API:
 //!
-//! ```rust
-//! # fn scalar_transform(input: &[f32], output: &mut [f32]) { output.copy_from_slice(input); }
-//! fn transform(input: &[f32], output: &mut [f32]) {
-//!     who::warn!(
-//!         rustc().changed_from("1.95.0"),
-//!         "Recheck rust-lang/rust#123456 and restore the SIMD path if fixed"
-//!     );
-//!
-//!     // SIMD path disabled because of a compiler codegen bug.
-//!     scalar_transform(input, output);
-//! }
+//! ```rust,ignore
+//! who::warn!(
+//!     path(std::sync::LazyLock).exists(),
+//!     "Review this OnceLock shim and replace it with std::sync::LazyLock"
+//! );
 //! ```
 //!
-//! The scalar path may be completely correct and well tested.
-//! Those tests will still pass after the compiler bug is fixed.
-//!
-//! When the compiler version changes, `who` brings this code back to your attention so the workaround does not silently become permanent.
+//! The shim can be correct and well tested, but those tests will not tell you when the newer API becomes available.
+//! The `path` feature brings this code back to your attention when `std::sync::LazyLock` is importable.
 //!
 //! ## DSL reference
 //!
