@@ -5,4 +5,4 @@ edition = "2021"
 rust-version = "1.74"
 
 [dependencies]
-who = { path = "../..", default-features = false }
+who = { path = "../..", default-features = false, features = ["path"] }

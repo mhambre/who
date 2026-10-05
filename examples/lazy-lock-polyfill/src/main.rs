@@ -41,7 +41,7 @@ static SETTINGS: LazyLock<Settings> = LazyLock::new(Settings::from_env);
 
 fn payload_fits(maximum: Option<usize>, payload_len: usize) -> bool {
     who::warn!(
-        rustc().compare(">=1.80"),
+        path(std::sync::LazyLock).exists(),
         "Review this OnceLock shim and replace it with std::sync::LazyLock"
     );
 
